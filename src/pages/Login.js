@@ -75,8 +75,8 @@ export default function Login() {
     <div style={C.page}>
       <div style={C.card}>
         <div style={C.crown}>🤵</div>
-        <div style={C.title}>Concierge Platform</div>
-        <div style={C.sub}>Admin portal — manage your AI concierge clients</div>
+        <div style={C.title}>AI Assistant Platform</div>
+        <div style={C.sub}>Admin portal — manage your AI assistant clients</div>
 
         {error && <div style={C.error}>{error}</div>}
 

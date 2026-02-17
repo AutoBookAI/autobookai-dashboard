@@ -212,7 +212,7 @@ export default function CustomerDetail() {
           <div style={S.sideSection}>
             <div style={S.sideLabel}>Billing</div>
             <div style={S.infoKey}>Plan</div>
-            <div style={S.infoVal}>{customer.plan === 'concierge_pro' ? 'Concierge Pro — $299/mo' : 'Concierge — $149/mo'}</div>
+            <div style={S.infoVal}>AI Assistant — $49.99/mo</div>
             {customer.subscription_status !== 'active' ? (
               <button style={S.subscribeBtn} onClick={handleSubscribe}>
                 💳 Send Payment Link

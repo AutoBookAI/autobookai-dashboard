@@ -102,7 +102,7 @@ export default function Dashboard() {
   const [loading, setLoading]     = useState(true);
   const [modal, setModal]         = useState(false);
   const [error, setError]         = useState('');
-  const [form, setForm]           = useState({ name:'', email:'', whatsapp_from:'', plan:'concierge' });
+  const [form, setForm]           = useState({ name:'', email:'', whatsapp_from:'', plan:'assistant' });
   const navigate = useNavigate();
   const admin = JSON.parse(localStorage.getItem('admin') || '{}');
 
@@ -120,7 +120,7 @@ export default function Dashboard() {
     try {
       await api.post('/api/customers', form);
       setModal(false);
-      setForm({ name:'', email:'', whatsapp_from:'', plan:'concierge' });
+      setForm({ name:'', email:'', whatsapp_from:'', plan:'assistant' });
       load();
     } catch (err) { setError(err.response?.data?.error || 'Failed to create'); }
   }
@@ -139,14 +139,14 @@ export default function Dashboard() {
     active:   customers.filter(c => c.subscription_status === 'active').length,
     agents:   customers.filter(c => c.openclaw_status === 'active').length,
     mrr:      customers.filter(c => c.subscription_status === 'active')
-                       .reduce((s, c) => s + (c.plan === 'concierge_pro' ? 299 : 149), 0),
+                       .reduce((s, c) => s + 49.99, 0).toFixed(2),
   };
 
   return (
     <div style={G.page}>
       <nav style={G.nav}>
         <div>
-          <span style={G.logo}>Concierge</span>
+          <span style={G.logo}>AI Assistant</span>
           <span style={G.logoBadge}>AI PLATFORM</span>
         </div>
         <div style={G.navRight}>
@@ -157,7 +157,7 @@ export default function Dashboard() {
 
       <div style={G.main}>
         <div style={G.h1}>Dashboard</div>
-        <div style={G.sub}>Your AI concierge clients — each powered by OpenClaw + Claude</div>
+        <div style={G.sub}>Your AI assistant clients — each powered by OpenClaw + Claude</div>
 
         <div style={G.statsGrid}>
           {[
@@ -205,7 +205,7 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td style={G.td} style={{ textTransform:'capitalize' }}>
-                      {c.plan === 'concierge_pro' ? 'Pro — $299/mo' : 'Concierge — $149/mo'}
+                      AI Assistant — $49.99/mo
                     </td>
                     <td style={G.td}><span style={G.badge(c.subscription_status)}>{c.subscription_status}</span></td>
                     <td style={G.td}><span style={G.agentBadge(c.openclaw_status)}>{c.openclaw_status}</span></td>
@@ -246,11 +246,9 @@ export default function Dashboard() {
                 onChange={e => setForm(f => ({ ...f, whatsapp_from: e.target.value }))}
                 placeholder="+1234567890" />
               <label style={G.label}>Plan</label>
-              <select style={G.input} value={form.plan}
-                onChange={e => setForm(f => ({ ...f, plan: e.target.value }))}>
-                <option value="concierge">Concierge — $149/month</option>
-                <option value="concierge_pro">Concierge Pro — $299/month</option>
-              </select>
+              <div style={{ ...G.input, background:'#f0f0ff', color:'#5c5c9e' }}>
+                AI Assistant — $49.99/month
+              </div>
               <div style={{ background:'#f0f0ff', borderRadius:'8px', padding:'12px 14px',
                 fontSize:'13px', color:'#5c5c9e', marginBottom:'20px' }}>
                 💡 After creating, go to the client's profile to set up their preferences —
