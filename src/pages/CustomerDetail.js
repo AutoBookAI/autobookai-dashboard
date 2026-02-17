@@ -150,6 +150,17 @@ export default function CustomerDetail() {
     } catch { alert('Failed to open billing portal'); }
   }
 
+  async function handleReprovision() {
+    if (!window.confirm('Retry AI agent deployment for this customer?')) return;
+    try {
+      await api.post(`/api/customers/${id}/reprovision`);
+      alert('AI agent reprovisioning started. Refresh in ~60 seconds.');
+      loadCustomer();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to reprovision');
+    }
+  }
+
   function addLoyalty()    { setLoyalty(l => [...l, { program: '', number: '' }]); }
   function removeLoyalty(i){ setLoyalty(l => l.filter((_, idx) => idx !== i));     }
   function updateLoyalty(i, field, val) {
@@ -206,6 +217,12 @@ export default function CustomerDetail() {
                   </a>
                 </div>
               </>
+            )}
+            {(customer.openclaw_status === 'error' || customer.openclaw_status === 'pending') && (
+              <button style={{ ...S.actionBtn, color:'#c62828', borderColor:'#ffcdd2' }}
+                onClick={handleReprovision}>
+                🔄 Retry AI Agent Deployment
+              </button>
             )}
           </div>
 
