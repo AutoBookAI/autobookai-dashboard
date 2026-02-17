@@ -7,7 +7,7 @@ const L = {
   // ── Hero ────────────────────────────────────────────────────────────────────
   hero: {
     background:'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-    padding:'80px 40px 100px', textAlign:'center', color:'#fff',
+    padding:'60px 20px 80px', textAlign:'center', color:'#fff',
   },
   heroTag: {
     display:'inline-block', background:'rgba(102,126,234,0.2)', border:'1px solid rgba(102,126,234,0.4)',
@@ -15,7 +15,7 @@ const L = {
     letterSpacing:'1px', color:'#a0b4f7', marginBottom:'24px', textTransform:'uppercase',
   },
   heroH1: {
-    fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:'52px',
+    fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:'clamp(28px, 5vw, 52px)',
     lineHeight:1.15, maxWidth:'700px', margin:'0 auto 20px', letterSpacing:'-0.5px',
   },
   heroSub: {
@@ -33,7 +33,7 @@ const L = {
   },
 
   // ── How it works ──────────────────────────────────────────────────────────
-  section: { padding:'80px 40px', maxWidth:'1000px', margin:'0 auto' },
+  section: { padding:'60px 20px', maxWidth:'1000px', margin:'0 auto' },
   sectionTitle: {
     fontFamily:"'Playfair Display',serif", fontWeight:600, fontSize:'32px',
     textAlign:'center', marginBottom:'12px',
@@ -41,7 +41,7 @@ const L = {
   sectionSub: {
     textAlign:'center', color:'#888', fontSize:'16px', marginBottom:'56px', maxWidth:'560px', margin:'0 auto 56px',
   },
-  stepsGrid: { display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'40px' },
+  stepsGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:'40px' },
   stepCard: { textAlign:'center' },
   stepNum: {
     width:'48px', height:'48px', borderRadius:'50%',
@@ -53,8 +53,8 @@ const L = {
   stepDesc: { color:'#888', fontSize:'14px', lineHeight:1.6 },
 
   // ── Features ──────────────────────────────────────────────────────────────
-  featBg: { background:'#f8f5f0', padding:'80px 40px' },
-  featGrid: { display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'24px', maxWidth:'900px', margin:'0 auto' },
+  featBg: { background:'#f8f5f0', padding:'60px 20px' },
+  featGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:'24px', maxWidth:'900px', margin:'0 auto' },
   featCard: {
     background:'#fff', border:'1px solid #ede8e1', borderRadius:'12px',
     padding:'28px 32px', display:'flex', gap:'16px', alignItems:'flex-start',
@@ -64,7 +64,7 @@ const L = {
   featDesc: { color:'#888', fontSize:'13px', lineHeight:1.5 },
 
   // ── Pricing ───────────────────────────────────────────────────────────────
-  priceBg: { padding:'80px 40px', textAlign:'center' },
+  priceBg: { padding:'60px 20px', textAlign:'center' },
   priceCard: {
     background:'#fff', border:'2px solid #e0d8f0', borderRadius:'20px',
     padding:'48px 40px', maxWidth:'420px', margin:'0 auto',
@@ -131,6 +131,14 @@ export default function Landing() {
           Get Started →
         </button>
         <div style={L.heroPrice}>$49.99/month — cancel anytime</div>
+        <div style={{ marginTop:'20px' }}>
+          <span
+            style={{ color:'rgba(255,255,255,0.4)', fontSize:'13px', cursor:'pointer', textDecoration:'underline' }}
+            onClick={() => navigate('/portal/login')}
+          >
+            Already a member? Sign in
+          </span>
+        </div>
       </div>
 
       {/* ── How it works ──────────────────────────────────────────────────── */}

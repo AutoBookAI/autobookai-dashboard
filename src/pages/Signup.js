@@ -137,6 +137,9 @@ export default function Signup() {
 
         <div style={{ textAlign:'center' }}>
           <span style={S.backLink} onClick={() => navigate('/')}>← Back to home</span>
+          <span style={{ ...S.backLink, marginLeft:'16px' }} onClick={() => navigate('/portal/login')}>
+            Already have an account? Sign in
+          </span>
         </div>
       </div>
     </div>

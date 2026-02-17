@@ -81,6 +81,8 @@ export default function SignupSuccess() {
   const navigate = useNavigate();
   const [status, setStatus]     = useState('loading'); // loading | success | error | pending
   const [customer, setCustomer] = useState(null);
+  const [retries, setRetries] = useState(0);
+  const maxRetries = 24; // 24 × 5s = 2 minutes
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
@@ -98,10 +100,15 @@ export default function SignupSuccess() {
       if (res.data.whatsapp_to) {
         setStatus('success');
       } else {
-        // Number not assigned yet, AI agent still provisioning
         setStatus('pending');
-        // Poll again in 5 seconds
-        setTimeout(checkStatus, 5000);
+        setRetries(prev => {
+          if (prev + 1 >= maxRetries) {
+            setStatus('timeout');
+            return prev + 1;
+          }
+          setTimeout(checkStatus, 5000);
+          return prev + 1;
+        });
       }
     } catch {
       setStatus('error');
@@ -157,6 +164,13 @@ export default function SignupSuccess() {
           </div>
         )}
 
+        {status === 'timeout' && (
+          <div style={{ ...S.statusBox, borderColor:'rgba(255,180,100,0.3)', color:'#ffb464' }}>
+            This is taking longer than expected. Your AI is still being set up — please check back
+            in a few minutes or contact support if it persists.
+          </div>
+        )}
+
         {customer?.whatsapp_to && (
           <div style={S.numberBox}>
             <div style={S.numberLabel}>Your WhatsApp AI Number</div>
@@ -184,6 +198,16 @@ export default function SignupSuccess() {
         <div style={{ color:'rgba(255,255,255,0.3)', fontSize:'12px' }}>
           Your subscription: $49.99/month. You can cancel anytime via your billing portal.
         </div>
+        <button
+          style={{
+            background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:'8px', color:'#a0b4f7', padding:'12px 24px', cursor:'pointer',
+            fontSize:'14px', fontWeight:500, marginTop:'20px', fontFamily:"'Inter',sans-serif",
+          }}
+          onClick={() => navigate('/portal/login')}
+        >
+          Sign in to your portal →
+        </button>
       </div>
     </div>
   );

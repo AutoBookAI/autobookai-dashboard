@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
+const PLAN_PRICE = 49.99;
+
 const G = { // global styles
   page: { minHeight:'100vh', background:'#f8f5f0', fontFamily:"'Inter',sans-serif", color:'#1a1a1a' },
   nav: {
@@ -139,7 +141,7 @@ export default function Dashboard() {
     active:   customers.filter(c => c.subscription_status === 'active').length,
     agents:   customers.filter(c => c.openclaw_status === 'active').length,
     mrr:      customers.filter(c => c.subscription_status === 'active')
-                       .reduce((s, c) => s + 49.99, 0).toFixed(2),
+                       .reduce((s, c) => s + PLAN_PRICE, 0).toFixed(2),
   };
 
   return (
@@ -204,8 +206,8 @@ export default function Dashboard() {
                         {c.whatsapp_to || '—'}
                       </span>
                     </td>
-                    <td style={G.td} style={{ textTransform:'capitalize' }}>
-                      AI Assistant — $49.99/mo
+                    <td style={{ ...G.td, textTransform:'capitalize' }}>
+                      AI Assistant — ${`$${PLAN_PRICE}/mo`}
                     </td>
                     <td style={G.td}><span style={G.badge(c.subscription_status)}>{c.subscription_status}</span></td>
                     <td style={G.td}><span style={G.agentBadge(c.openclaw_status)}>{c.openclaw_status}</span></td>
@@ -247,7 +249,7 @@ export default function Dashboard() {
                 placeholder="+1234567890" />
               <label style={G.label}>Plan</label>
               <div style={{ ...G.input, background:'#f0f0ff', color:'#5c5c9e' }}>
-                AI Assistant — $49.99/month
+                AI Assistant — ${`$${PLAN_PRICE}/month`}
               </div>
               <div style={{ background:'#f0f0ff', borderRadius:'8px', padding:'12px 14px',
                 fontSize:'13px', color:'#5c5c9e', marginBottom:'20px' }}>
