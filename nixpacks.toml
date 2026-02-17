@@ -1,0 +1,3 @@
+# Use npm install instead of npm ci to handle lockfile version differences
+[phases.install]
+cmds = ["npm install --production=false"]
