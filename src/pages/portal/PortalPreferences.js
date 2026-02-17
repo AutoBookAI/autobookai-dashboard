@@ -66,37 +66,86 @@ export default function PortalPreferences() {
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [calendarLoading, setCalendarLoading] = useState(false);
+  const [calendarMsg, setCalendarMsg] = useState(null);
   const [profile, setProfile] = useState({
     full_name: '', dietary_restrictions: '', cuisine_preferences: '',
     preferred_restaurants: '', dining_budget: '', preferred_airlines: '',
     seat_preference: '', cabin_class: 'economy', hotel_preferences: '',
     preferred_contact: 'whatsapp', passport_number: '', date_of_birth: '',
+    timezone: '', gmail_app_password: '', has_gmail_app_password: false,
   });
   const [loyalty, setLoyalty] = useState([{ program: '', number: '' }]);
 
   useEffect(() => {
     customerApi.get('/api/customer/profile').then(r => {
       if (r.data) {
-        setProfile(p => ({ ...p, ...r.data }));
+        setProfile(p => ({ ...p, ...r.data, gmail_app_password: '' }));
         if (r.data.loyalty_numbers && Array.isArray(r.data.loyalty_numbers)) {
           setLoyalty(r.data.loyalty_numbers);
         }
       }
     }).catch(() => {});
+
+    // Check calendar connection status
+    customerApi.get('/api/customer/calendar/status').then(r => {
+      setCalendarConnected(r.data?.connected || false);
+    }).catch(() => {});
+
+    // Check for OAuth redirect result in URL params
+    const params = new URLSearchParams(window.location.search);
+    const calendarResult = params.get('calendar');
+    if (calendarResult === 'connected') {
+      setCalendarConnected(true);
+      setCalendarMsg({ type: 'success', text: 'Google Calendar connected successfully' });
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (calendarResult === 'denied') {
+      setCalendarMsg({ type: 'error', text: 'Calendar access was denied' });
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (calendarResult === 'error') {
+      setCalendarMsg({ type: 'error', text: 'Failed to connect calendar. Please try again.' });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   async function saveProfile() {
     setSaving(true); setSaved(false);
     try {
-      await customerApi.patch('/api/customer/profile', {
-        ...profile,
-        loyalty_numbers: loyalty.filter(l => l.program || l.number),
-      });
+      const payload = { ...profile, loyalty_numbers: loyalty.filter(l => l.program || l.number) };
+      delete payload.has_gmail_app_password;
+      if (!payload.gmail_app_password) delete payload.gmail_app_password;
+      await customerApi.patch('/api/customer/profile', payload);
+      if (profile.gmail_app_password) {
+        setProfile(p => ({ ...p, has_gmail_app_password: true, gmail_app_password: '' }));
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to save');
     } finally { setSaving(false); }
+  }
+
+  async function connectCalendar() {
+    setCalendarLoading(true);
+    try {
+      const r = await customerApi.get('/api/customer/calendar/auth-url');
+      window.location.href = r.data.url;
+    } catch {
+      alert('Failed to start calendar connection');
+      setCalendarLoading(false);
+    }
+  }
+
+  async function disconnectCalendar() {
+    setCalendarLoading(true);
+    try {
+      await customerApi.post('/api/customer/calendar/disconnect');
+      setCalendarConnected(false);
+      setCalendarMsg({ type: 'success', text: 'Calendar disconnected' });
+    } catch {
+      alert('Failed to disconnect calendar');
+    } finally { setCalendarLoading(false); }
   }
 
   function F(key) {
@@ -232,13 +281,78 @@ export default function PortalPreferences() {
         <div style={S.card}>
           <h3 style={S.sectionTitle}>Communication Preferences</h3>
           <p style={S.sectionSub}>How your AI assistant should contact you</p>
+          <div style={S.grid2}>
+            <div>
+              <label style={S.label}>Preferred Contact Method</label>
+              <select style={S.input} {...F('preferred_contact')}>
+                <option value="whatsapp">WhatsApp (primary)</option>
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+              </select>
+            </div>
+            <div>
+              <label style={S.label}>Timezone</label>
+              <select style={S.input} {...F('timezone')}>
+                <option value="">Select timezone...</option>
+                <option value="America/New_York">Eastern (New York)</option>
+                <option value="America/Chicago">Central (Chicago)</option>
+                <option value="America/Denver">Mountain (Denver)</option>
+                <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
+                <option value="Europe/London">London</option>
+                <option value="Europe/Paris">Paris</option>
+                <option value="Asia/Dubai">Dubai</option>
+                <option value="Asia/Singapore">Singapore</option>
+                <option value="Asia/Tokyo">Tokyo</option>
+                <option value="Australia/Sydney">Sydney</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Google Calendar */}
+        <div style={S.card}>
+          <h3 style={S.sectionTitle}>Google Calendar</h3>
+          <p style={S.sectionSub}>Connect your calendar so your AI can check availability and create events</p>
+          {calendarMsg && (
+            <div style={calendarMsg.type === 'success' ? S.successBox : {
+              ...S.successBox, background: '#ffebee', borderColor: '#ffcdd2', color: '#c62828',
+            }}>{calendarMsg.text}</div>
+          )}
+          {calendarConnected ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <span style={{
+                display: 'inline-block', padding: '6px 14px', borderRadius: '20px', fontSize: '13px',
+                fontWeight: 600, background: '#e8f5e9', color: '#2e7d32',
+              }}>Connected</span>
+              <button style={{ ...S.removeBtn, padding: '8px 16px' }}
+                onClick={disconnectCalendar} disabled={calendarLoading}>
+                {calendarLoading ? 'Disconnecting...' : 'Disconnect'}
+              </button>
+            </div>
+          ) : (
+            <button style={{
+              ...S.saveBtn, background: '#fff', color: '#1a73e8', border: '1px solid #dadce0',
+              display: 'flex', alignItems: 'center', gap: '8px',
+            }} onClick={connectCalendar} disabled={calendarLoading}>
+              {calendarLoading ? 'Redirecting...' : 'Connect Google Calendar'}
+            </button>
+          )}
+        </div>
+
+        {/* Email Integration */}
+        <div style={S.card}>
+          <h3 style={S.sectionTitle}>Email Integration</h3>
+          <p style={S.sectionSub}>Let your AI send emails from your Gmail account</p>
           <div>
-            <label style={S.label}>Preferred Contact Method</label>
-            <select style={S.input} {...F('preferred_contact')}>
-              <option value="whatsapp">WhatsApp (primary)</option>
-              <option value="email">Email</option>
-              <option value="sms">SMS</option>
-            </select>
+            <label style={S.label}>Gmail App Password</label>
+            <input style={S.input} type="password" {...F('gmail_app_password')}
+              placeholder={profile.has_gmail_app_password ? '••••••••••••••• (saved)' : 'Paste your Gmail app password'} />
+            <p style={{ color: '#aaa', fontSize: '12px', marginTop: '8px' }}>
+              Generate an app password at{' '}
+              <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer"
+                style={{ color: '#764ba2' }}>myaccount.google.com/apppasswords</a>.
+              {' '}This allows your AI to send emails from your address.
+            </p>
           </div>
         </div>
 

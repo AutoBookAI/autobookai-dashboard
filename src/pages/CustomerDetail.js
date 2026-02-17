@@ -104,6 +104,8 @@ export default function CustomerDetail() {
     preferred_restaurants: '', dining_budget: '', preferred_airlines: '',
     seat_preference: '', cabin_class: 'economy', hotel_preferences: '',
     preferred_contact: 'whatsapp', passport_number: '', date_of_birth: '',
+    timezone: '', gmail_app_password: '', has_gmail_app_password: false,
+    calendar_connected: false,
   });
   const [loyalty, setLoyalty]   = useState([{ program: '', number: '' }]);
 
@@ -114,7 +116,7 @@ export default function CustomerDetail() {
       const r = await api.get(`/api/customers/${id}`);
       setCustomer(r.data);
       if (r.data.profile) {
-        setProfile(p => ({ ...p, ...r.data.profile }));
+        setProfile(p => ({ ...p, ...r.data.profile, gmail_app_password: '' }));
         if (r.data.profile.loyalty_numbers && Array.isArray(r.data.profile.loyalty_numbers)) {
           setLoyalty(r.data.profile.loyalty_numbers);
         }
@@ -125,10 +127,14 @@ export default function CustomerDetail() {
   async function saveProfile() {
     setSaving(true); setSaved(false);
     try {
-      await api.patch(`/api/customers/${id}/profile`, {
-        ...profile,
-        loyalty_numbers: loyalty.filter(l => l.program || l.number),
-      });
+      const payload = { ...profile, loyalty_numbers: loyalty.filter(l => l.program || l.number) };
+      delete payload.has_gmail_app_password;
+      delete payload.calendar_connected;
+      if (!payload.gmail_app_password) delete payload.gmail_app_password;
+      await api.patch(`/api/customers/${id}/profile`, payload);
+      if (profile.gmail_app_password) {
+        setProfile(p => ({ ...p, has_gmail_app_password: true, gmail_app_password: '' }));
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -224,6 +230,28 @@ export default function CustomerDetail() {
                 🔄 Retry AI Agent Deployment
               </button>
             )}
+          </div>
+
+          <div style={S.sideSection}>
+            <div style={S.sideLabel}>Integrations</div>
+            <div style={S.infoKey}>Google Calendar</div>
+            <div style={S.infoVal}>
+              <span style={{
+                display: 'inline-block', padding: '3px 10px', borderRadius: '20px', fontSize: '11px',
+                fontWeight: 600,
+                background: profile.calendar_connected ? '#e8f5e9' : '#f5f5f5',
+                color: profile.calendar_connected ? '#2e7d32' : '#757575',
+              }}>{profile.calendar_connected ? 'Connected' : 'Not connected'}</span>
+            </div>
+            <div style={S.infoKey}>Gmail Email</div>
+            <div style={S.infoVal}>
+              <span style={{
+                display: 'inline-block', padding: '3px 10px', borderRadius: '20px', fontSize: '11px',
+                fontWeight: 600,
+                background: profile.has_gmail_app_password ? '#e8f5e9' : '#f5f5f5',
+                color: profile.has_gmail_app_password ? '#2e7d32' : '#757575',
+              }}>{profile.has_gmail_app_password ? 'Configured' : 'Not configured'}</span>
+            </div>
           </div>
 
           <div style={S.sideSection}>
@@ -367,13 +395,47 @@ export default function CustomerDetail() {
           <div style={S.card}>
             <h3 style={S.sectionTitle}>Communication Preferences</h3>
             <p style={S.sectionSub}>How the AI agent should contact this client</p>
+            <div style={S.grid2}>
+              <div>
+                <label style={S.label}>Preferred Contact Method</label>
+                <select style={S.input} {...F('preferred_contact')}>
+                  <option value="whatsapp">WhatsApp (primary)</option>
+                  <option value="email">Email</option>
+                  <option value="sms">SMS</option>
+                </select>
+              </div>
+              <div>
+                <label style={S.label}>Timezone</label>
+                <select style={S.input} {...F('timezone')}>
+                  <option value="">Select timezone...</option>
+                  <option value="America/New_York">Eastern (New York)</option>
+                  <option value="America/Chicago">Central (Chicago)</option>
+                  <option value="America/Denver">Mountain (Denver)</option>
+                  <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
+                  <option value="Europe/London">London</option>
+                  <option value="Europe/Paris">Paris</option>
+                  <option value="Asia/Dubai">Dubai</option>
+                  <option value="Asia/Singapore">Singapore</option>
+                  <option value="Asia/Tokyo">Tokyo</option>
+                  <option value="Australia/Sydney">Sydney</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Email Integration */}
+          <div style={S.card}>
+            <h3 style={S.sectionTitle}>Email Integration</h3>
+            <p style={S.sectionSub}>Gmail app password for sending emails from the customer's address</p>
             <div>
-              <label style={S.label}>Preferred Contact Method</label>
-              <select style={S.input} {...F('preferred_contact')}>
-                <option value="whatsapp">WhatsApp (primary)</option>
-                <option value="email">Email</option>
-                <option value="sms">SMS</option>
-              </select>
+              <label style={S.label}>Gmail App Password</label>
+              <input style={S.input} type="password" {...F('gmail_app_password')}
+                placeholder={profile.has_gmail_app_password ? '••••••••••••••• (saved)' : 'Paste Gmail app password'} />
+              <p style={{ color:'#aaa', fontSize:'12px', marginTop:'8px' }}>
+                Generated at{' '}
+                <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer"
+                  style={{ color:'#764ba2' }}>myaccount.google.com/apppasswords</a>
+              </p>
             </div>
           </div>
 
