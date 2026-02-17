@@ -198,7 +198,12 @@ export default function Landing() {
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <div style={L.footer}>
-        © {new Date().getFullYear()} AI Assistant. All rights reserved.
+        <div style={{ marginBottom:'8px' }}>
+          <span style={{ cursor:'pointer', textDecoration:'underline' }} onClick={() => navigate('/terms')}>Terms of Service</span>
+          <span style={{ margin:'0 12px' }}>|</span>
+          <span style={{ cursor:'pointer', textDecoration:'underline' }} onClick={() => navigate('/privacy')}>Privacy Policy</span>
+        </div>
+        © {new Date().getFullYear()} AutoBookAI. All rights reserved.
       </div>
     </div>
   );

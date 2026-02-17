@@ -60,6 +60,18 @@ const S = {
     display:'inline-block', color:'rgba(255,255,255,0.3)', fontSize:'13px',
     textDecoration:'none', marginTop:'20px', cursor:'pointer',
   },
+  checkboxRow: {
+    display:'flex', alignItems:'flex-start', gap:'10px',
+    marginTop:'16px', marginBottom:'8px',
+  },
+  checkbox: {
+    width:'18px', height:'18px', marginTop:'2px', flexShrink:0,
+    accentColor:'#667eea', cursor:'pointer',
+  },
+  checkboxLabel: {
+    color:'rgba(255,255,255,0.5)', fontSize:'12px', lineHeight:1.5, cursor:'pointer',
+  },
+  link: { color:'#a0b4f7', textDecoration:'underline', cursor:'pointer' },
   terms: {
     color:'rgba(255,255,255,0.3)', fontSize:'11px', marginTop:'16px', lineHeight:1.5,
     textAlign:'center',
@@ -72,6 +84,7 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
+  const [agreed, setAgreed]     = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -80,6 +93,10 @@ export default function Signup() {
 
     if (password.length < 8) {
       setError('Password must be at least 8 characters');
+      return;
+    }
+    if (!agreed) {
+      setError('You must agree to the Terms of Service and Privacy Policy');
       return;
     }
 
@@ -125,14 +142,25 @@ export default function Signup() {
             <input style={S.input} type="password" required value={password}
               onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" />
           </div>
-          <button style={{ ...S.btn, ...(loading ? S.btnDisabled : {}) }} type="submit" disabled={loading}>
+          <div style={S.checkboxRow}>
+            <input type="checkbox" style={S.checkbox} id="agree"
+              checked={agreed} onChange={e => setAgreed(e.target.checked)} />
+            <label htmlFor="agree" style={S.checkboxLabel}>
+              I agree to the{' '}
+              <span style={S.link} onClick={e => { e.preventDefault(); navigate('/terms'); }}>Terms of Service</span>
+              {' '}and{' '}
+              <span style={S.link} onClick={e => { e.preventDefault(); navigate('/privacy'); }}>Privacy Policy</span>.
+              I understand that the AI assistant may make mistakes and that AutoBookAI is not liable
+              for actions taken on my behalf.
+            </label>
+          </div>
+          <button style={{ ...S.btn, ...(loading || !agreed ? S.btnDisabled : {}) }} type="submit" disabled={loading || !agreed}>
             {loading ? 'Setting up...' : 'Continue to Payment →'}
           </button>
         </form>
 
         <div style={S.terms}>
-          By signing up you agree to our terms of service.<br />
-          You'll be charged $49.99/month. Cancel anytime.
+          $49.99/month. Cancel anytime. 30 messages/day included.
         </div>
 
         <div style={{ textAlign:'center' }}>

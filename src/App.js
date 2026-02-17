@@ -10,6 +10,8 @@ import PortalLogin from './pages/portal/PortalLogin';
 import Portal from './pages/portal/Portal';
 import PortalPreferences from './pages/portal/PortalPreferences';
 import PortalActivity from './pages/portal/PortalActivity';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -68,6 +70,8 @@ export default function App() {
         <Route path="/"               element={<Landing />} />
         <Route path="/signup"         element={<Signup />} />
         <Route path="/signup/success" element={<SignupSuccess />} />
+        <Route path="/terms"          element={<Terms />} />
+        <Route path="/privacy"        element={<Privacy />} />
 
         {/* Admin pages */}
         <Route path="/login"          element={<Login />} />
