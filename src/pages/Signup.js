@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
+const AI_NAMES = [
+  { name: 'Tiger',    emoji: '🐯', tagline: 'Energetic & confident',       color: '#f59e0b' },
+  { name: 'Liam',     emoji: '😎', tagline: 'Friendly & casual',           color: '#667eea' },
+  { name: 'Julian',   emoji: '🎩', tagline: 'Sophisticated & polished',    color: '#8b5cf6' },
+  { name: 'Maxi',     emoji: '🎉', tagline: 'Fun & upbeat',               color: '#ec4899' },
+  { name: 'Carlos',   emoji: '🤝', tagline: 'Warm & reliable',            color: '#10b981' },
+  { name: 'Harrison', emoji: '📋', tagline: 'Professional & sharp',       color: '#3b82f6' },
+];
+
 const S = {
   page: {
     minHeight:'100vh',
@@ -16,6 +25,15 @@ const S = {
     borderRadius:'16px',
     padding:'48px 44px',
     width:'100%', maxWidth:'440px',
+    boxShadow:'0 32px 80px rgba(0,0,0,0.4)',
+  },
+  cardWide: {
+    background:'rgba(255,255,255,0.04)',
+    backdropFilter:'blur(20px)',
+    border:'1px solid rgba(255,255,255,0.1)',
+    borderRadius:'16px',
+    padding:'48px 44px',
+    width:'100%', maxWidth:'580px',
     boxShadow:'0 32px 80px rgba(0,0,0,0.4)',
   },
   icon: { fontSize:'32px', marginBottom:'12px' },
@@ -76,21 +94,45 @@ const S = {
     color:'rgba(255,255,255,0.3)', fontSize:'11px', marginTop:'16px', lineHeight:1.5,
     textAlign:'center',
   },
+  // Step 2 — name selection
+  nameGrid: {
+    display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))',
+    gap:'12px', marginBottom:'20px',
+  },
+  nameCard: (selected, color) => ({
+    background: selected ? `${color}18` : 'rgba(255,255,255,0.04)',
+    border: selected ? `2px solid ${color}` : '1px solid rgba(255,255,255,0.1)',
+    borderRadius:'12px', padding:'18px 14px', textAlign:'center',
+    cursor:'pointer', transition:'all 0.15s',
+  }),
+  nameEmoji: { fontSize:'28px', marginBottom:'6px' },
+  nameName: { color:'#fff', fontWeight:600, fontSize:'16px', marginBottom:'4px' },
+  nameTag: { color:'rgba(255,255,255,0.4)', fontSize:'11px' },
+  customInput: {
+    width:'100%', background:'rgba(255,255,255,0.06)',
+    border:'1px solid rgba(255,255,255,0.12)', borderRadius:'8px',
+    padding:'12px 14px', color:'#fff', fontSize:'14px', outline:'none',
+    boxSizing:'border-box', fontFamily:"'Inter',sans-serif",
+    marginTop:'12px',
+  },
 };
 
 export default function Signup() {
-  const [name, setName]         = useState('');
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [agreed, setAgreed]     = useState(false);
+  const [step, setStep]                   = useState(1);
+  const [name, setName]                   = useState('');
+  const [email, setEmail]                 = useState('');
+  const [password, setPassword]           = useState('');
+  const [agreed, setAgreed]               = useState(false);
+  const [assistantName, setAssistantName] = useState('');
+  const [customName, setCustomName]       = useState('');
+  const [isCustom, setIsCustom]           = useState(false);
+  const [error, setError]                 = useState('');
+  const [loading, setLoading]             = useState(false);
   const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  function handleStep1(e) {
     e.preventDefault();
     setError('');
-
     if (password.length < 8) {
       setError('Password must be at least 8 characters');
       return;
@@ -99,11 +141,34 @@ export default function Signup() {
       setError('You must agree to the Terms of Service and Privacy Policy');
       return;
     }
+    setStep(2);
+  }
+
+  function selectName(n) {
+    setAssistantName(n);
+    setIsCustom(false);
+    setCustomName('');
+  }
+
+  function selectCustom() {
+    setIsCustom(true);
+    setAssistantName('');
+  }
+
+  async function handleSubmit() {
+    setError('');
+    const finalName = isCustom ? customName.trim() : assistantName;
+    if (!finalName) {
+      setError('Please choose a name for your AI assistant');
+      return;
+    }
 
     setLoading(true);
     try {
-      const res = await api.post('/api/signup', { name, email, password });
-      // Redirect to Stripe Checkout
+      const res = await api.post('/api/signup', {
+        name, email, password,
+        assistant_name: finalName,
+      });
       window.location.href = res.data.checkoutUrl;
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.');
@@ -112,61 +177,125 @@ export default function Signup() {
     }
   }
 
+  const canSubmit = isCustom ? customName.trim().length > 0 : assistantName.length > 0;
+
+  // ── Step 1: Account details ─────────────────────────────────────────────────
+  if (step === 1) {
+    return (
+      <div style={S.page}>
+        <div style={S.card}>
+          <div style={S.icon}>🤖</div>
+          <div style={S.title}>Get Your AI Assistant</div>
+          <div style={S.sub}>Step 1 of 2 — Create your account</div>
+
+          <div style={S.price}>
+            <span style={S.priceLabel}>AI Assistant — monthly</span>
+            <span style={S.priceAmount}>$49.99/mo</span>
+          </div>
+
+          {error && <div style={S.error}>{error}</div>}
+
+          <form onSubmit={handleStep1}>
+            <div style={S.field}>
+              <label style={S.label}>Full Name</label>
+              <input style={S.input} required value={name}
+                onChange={e => setName(e.target.value)} placeholder="Your full name" />
+            </div>
+            <div style={S.field}>
+              <label style={S.label}>Email</label>
+              <input style={S.input} type="email" required value={email}
+                onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
+            </div>
+            <div style={S.field}>
+              <label style={S.label}>Password</label>
+              <input style={S.input} type="password" required value={password}
+                onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" />
+            </div>
+            <div style={S.checkboxRow}>
+              <input type="checkbox" style={S.checkbox} id="agree"
+                checked={agreed} onChange={e => setAgreed(e.target.checked)} />
+              <label htmlFor="agree" style={S.checkboxLabel}>
+                I agree to the{' '}
+                <span style={S.link} onClick={e => { e.preventDefault(); navigate('/terms'); }}>Terms of Service</span>
+                {' '}and{' '}
+                <span style={S.link} onClick={e => { e.preventDefault(); navigate('/privacy'); }}>Privacy Policy</span>.
+                I understand that the AI assistant may make mistakes and that AutoBookAI is not liable
+                for actions taken on my behalf.
+              </label>
+            </div>
+            <button style={{ ...S.btn, ...((!agreed) ? S.btnDisabled : {}) }} type="submit" disabled={!agreed}>
+              Next: Choose Your Assistant →
+            </button>
+          </form>
+
+          <div style={S.terms}>
+            $49.99/month. Cancel anytime. 30 messages/day included.
+          </div>
+
+          <div style={{ textAlign:'center' }}>
+            <span style={S.backLink} onClick={() => navigate('/')}>← Back to home</span>
+            <span style={{ ...S.backLink, marginLeft:'16px' }} onClick={() => navigate('/portal/login')}>
+              Already have an account? Sign in
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Step 2: Choose AI assistant name ───────────────────────────────────────
   return (
     <div style={S.page}>
-      <div style={S.card}>
-        <div style={S.icon}>🤖</div>
-        <div style={S.title}>Get Your AI Assistant</div>
-        <div style={S.sub}>Create your account — you'll be redirected to complete payment</div>
-
-        <div style={S.price}>
-          <span style={S.priceLabel}>AI Assistant — monthly</span>
-          <span style={S.priceAmount}>$49.99/mo</span>
-        </div>
+      <div style={S.cardWide}>
+        <div style={S.icon}>✨</div>
+        <div style={S.title}>Choose Your AI Assistant</div>
+        <div style={S.sub}>Step 2 of 2 — Pick a personality for your assistant</div>
 
         {error && <div style={S.error}>{error}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <div style={S.field}>
-            <label style={S.label}>Full Name</label>
-            <input style={S.input} required value={name}
-              onChange={e => setName(e.target.value)} placeholder="Your full name" />
+        <div style={S.nameGrid}>
+          {AI_NAMES.map(ai => (
+            <div
+              key={ai.name}
+              style={S.nameCard(assistantName === ai.name && !isCustom, ai.color)}
+              onClick={() => selectName(ai.name)}
+            >
+              <div style={S.nameEmoji}>{ai.emoji}</div>
+              <div style={S.nameName}>{ai.name}</div>
+              <div style={S.nameTag}>{ai.tagline}</div>
+            </div>
+          ))}
+          <div
+            style={S.nameCard(isCustom, '#9ca3af')}
+            onClick={selectCustom}
+          >
+            <div style={S.nameEmoji}>✏️</div>
+            <div style={S.nameName}>Other</div>
+            <div style={S.nameTag}>Choose your own</div>
           </div>
-          <div style={S.field}>
-            <label style={S.label}>Email</label>
-            <input style={S.input} type="email" required value={email}
-              onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
-          </div>
-          <div style={S.field}>
-            <label style={S.label}>Password</label>
-            <input style={S.input} type="password" required value={password}
-              onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" />
-          </div>
-          <div style={S.checkboxRow}>
-            <input type="checkbox" style={S.checkbox} id="agree"
-              checked={agreed} onChange={e => setAgreed(e.target.checked)} />
-            <label htmlFor="agree" style={S.checkboxLabel}>
-              I agree to the{' '}
-              <span style={S.link} onClick={e => { e.preventDefault(); navigate('/terms'); }}>Terms of Service</span>
-              {' '}and{' '}
-              <span style={S.link} onClick={e => { e.preventDefault(); navigate('/privacy'); }}>Privacy Policy</span>.
-              I understand that the AI assistant may make mistakes and that AutoBookAI is not liable
-              for actions taken on my behalf.
-            </label>
-          </div>
-          <button style={{ ...S.btn, ...(loading || !agreed ? S.btnDisabled : {}) }} type="submit" disabled={loading || !agreed}>
-            {loading ? 'Setting up...' : 'Continue to Payment →'}
-          </button>
-        </form>
-
-        <div style={S.terms}>
-          $49.99/month. Cancel anytime. 30 messages/day included.
         </div>
 
+        {isCustom && (
+          <input
+            style={S.customInput}
+            value={customName}
+            onChange={e => setCustomName(e.target.value)}
+            placeholder="Enter a custom name..."
+            autoFocus
+          />
+        )}
+
+        <button
+          style={{ ...S.btn, ...(loading || !canSubmit ? S.btnDisabled : {}), marginTop:'16px' }}
+          disabled={loading || !canSubmit}
+          onClick={handleSubmit}
+        >
+          {loading ? 'Setting up...' : 'Continue to Payment →'}
+        </button>
+
         <div style={{ textAlign:'center' }}>
-          <span style={S.backLink} onClick={() => navigate('/')}>← Back to home</span>
-          <span style={{ ...S.backLink, marginLeft:'16px' }} onClick={() => navigate('/portal/login')}>
-            Already have an account? Sign in
+          <span style={S.backLink} onClick={() => { setStep(1); setError(''); }}>
+            ← Back to account details
           </span>
         </div>
       </div>
