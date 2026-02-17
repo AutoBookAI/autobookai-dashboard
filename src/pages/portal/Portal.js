@@ -120,9 +120,11 @@ export default function Portal() {
             </div>
           </div>
           <div style={S.card}>
-            <div style={S.cardLabel}>AI Agent</div>
+            <div style={S.cardLabel}>AI Assistant</div>
             <div style={S.cardValue}>
-              <span style={S.badge(me.openclaw_status)}>{me.openclaw_status}</span>
+              <span style={S.badge(me.subscription_status === 'active' ? 'active' : 'inactive')}>
+                {me.subscription_status === 'active' ? 'Active' : 'Inactive'}
+              </span>
             </div>
           </div>
           <div style={S.card}>

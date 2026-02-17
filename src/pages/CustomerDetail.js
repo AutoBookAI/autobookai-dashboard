@@ -156,17 +156,6 @@ export default function CustomerDetail() {
     } catch { alert('Failed to open billing portal'); }
   }
 
-  async function handleReprovision() {
-    if (!window.confirm('Retry AI agent deployment for this customer?')) return;
-    try {
-      await api.post(`/api/customers/${id}/reprovision`);
-      alert('AI agent reprovisioning started. Refresh in ~60 seconds.');
-      loadCustomer();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Failed to reprovision');
-    }
-  }
-
   function addLoyalty()    { setLoyalty(l => [...l, { program: '', number: '' }]); }
   function removeLoyalty(i){ setLoyalty(l => l.filter((_, idx) => idx !== i));     }
   function updateLoyalty(i, field, val) {
@@ -189,8 +178,8 @@ export default function CustomerDetail() {
         <button style={S.back} onClick={() => navigate('/dashboard')}>← Back</button>
         <span style={S.navTitle}>{customer.name}</span>
         <span style={S.badge(customer.subscription_status)}>{customer.subscription_status}</span>
-        <span style={S.agentBadge(customer.openclaw_status)}>
-          🤖 AI Agent: {customer.openclaw_status}
+        <span style={S.agentBadge(customer.subscription_status === 'active' ? 'active' : 'pending')}>
+          AI Assistant: {customer.subscription_status === 'active' ? 'Active' : 'Inactive'}
         </span>
       </nav>
 
@@ -210,26 +199,13 @@ export default function CustomerDetail() {
           </div>
 
           <div style={S.sideSection}>
-            <div style={S.sideLabel}>AI Agent</div>
+            <div style={S.sideLabel}>AI Assistant</div>
             <div style={S.infoKey}>Status</div>
-            <div style={S.infoVal}>{customer.openclaw_status}</div>
-            {customer.railway_service_url && (
-              <>
-                <div style={S.infoKey}>Agent URL</div>
-                <div style={{ ...S.infoVal, fontSize:'12px', wordBreak:'break-all' }}>
-                  <a href={customer.railway_service_url} target="_blank" rel="noreferrer"
-                    style={{ color:'#764ba2' }}>
-                    View Agent Dashboard ↗
-                  </a>
-                </div>
-              </>
-            )}
-            {(customer.openclaw_status === 'error' || customer.openclaw_status === 'pending') && (
-              <button style={{ ...S.actionBtn, color:'#c62828', borderColor:'#ffcdd2' }}
-                onClick={handleReprovision}>
-                🔄 Retry AI Agent Deployment
-              </button>
-            )}
+            <div style={S.infoVal}>
+              <span style={S.agentBadge(customer.subscription_status === 'active' ? 'active' : 'pending')}>
+                {customer.subscription_status === 'active' ? 'Active' : 'Inactive'}
+              </span>
+            </div>
           </div>
 
           <div style={S.sideSection}>
@@ -280,8 +256,8 @@ export default function CustomerDetail() {
         {/* Main — Preference Onboarding */}
         <div style={S.main}>
           <div style={S.infoBox}>
-            🤖 <strong>How this works:</strong> Every preference you fill in here is securely stored and automatically
-            fed into {customer.name}'s personal OpenClaw AI agent. When they ask for a restaurant booking or
+            <strong>How this works:</strong> Every preference you fill in here is securely stored and automatically
+            loaded when {customer.name} messages their AI assistant. When they ask for a restaurant booking or
             flight, Claude already knows their dietary needs, loyalty numbers, and preferences — no need to ask.
           </div>
 

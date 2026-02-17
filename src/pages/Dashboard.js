@@ -139,7 +139,7 @@ export default function Dashboard() {
   const stats = {
     total:    customers.length,
     active:   customers.filter(c => c.subscription_status === 'active').length,
-    agents:   customers.filter(c => c.openclaw_status === 'active').length,
+    agents:   customers.filter(c => c.subscription_status === 'active').length,
     mrr:      customers.filter(c => c.subscription_status === 'active')
                        .reduce((s, c) => s + PLAN_PRICE, 0).toFixed(2),
   };
@@ -159,7 +159,7 @@ export default function Dashboard() {
 
       <div style={G.main}>
         <div style={G.h1}>Dashboard</div>
-        <div style={G.sub}>Your AI assistant clients — each powered by OpenClaw + Claude</div>
+        <div style={G.sub}>Your AI assistant clients — powered by Claude</div>
 
         <div style={G.statsGrid}>
           {[
@@ -210,7 +210,7 @@ export default function Dashboard() {
                       AI Assistant — ${`$${PLAN_PRICE}/mo`}
                     </td>
                     <td style={G.td}><span style={G.badge(c.subscription_status)}>{c.subscription_status}</span></td>
-                    <td style={G.td}><span style={G.agentBadge(c.openclaw_status)}>{c.openclaw_status}</span></td>
+                    <td style={G.td}><span style={G.agentBadge(c.subscription_status === 'active' ? 'active' : 'pending')}>{c.subscription_status === 'active' ? 'Active' : 'Inactive'}</span></td>
                     <td style={G.td}>
                       <button style={G.viewBtn} onClick={() => navigate(`/customers/${c.id}`)}>
                         View →
@@ -255,7 +255,7 @@ export default function Dashboard() {
                 fontSize:'13px', color:'#5c5c9e', marginBottom:'20px' }}>
                 💡 After creating, go to the client's profile to set up their preferences —
                 dietary needs, airline loyalty numbers, seat preferences, and more.
-                OpenClaw will use all of this automatically.
+                The AI assistant will use all of this automatically.
               </div>
               <div style={G.modalBtns}>
                 <button style={G.cancelBtn} type="button" onClick={() => setModal(false)}>Cancel</button>
