@@ -13,12 +13,8 @@ const SOCIAL_PROVIDERS = [
 ];
 
 const AI_NAMES = [
-  { name: 'Tiger',    emoji: '🐯', tagline: 'Energetic & confident',       color: '#f59e0b' },
-  { name: 'Liam',     emoji: '😎', tagline: 'Friendly & casual',           color: '#667eea' },
-  { name: 'Julian',   emoji: '🎩', tagline: 'Sophisticated & polished',    color: '#8b5cf6' },
-  { name: 'Maxi',     emoji: '🎉', tagline: 'Fun & upbeat',               color: '#ec4899' },
-  { name: 'Carlos',   emoji: '🤝', tagline: 'Warm & reliable',            color: '#10b981' },
-  { name: 'Harrison', emoji: '📋', tagline: 'Professional & sharp',       color: '#3b82f6' },
+  { name: 'Kova (Male)',   emoji: '🤵', tagline: 'Confident & professional', color: '#667eea' },
+  { name: 'Kova (Female)', emoji: '👩‍💼', tagline: 'Warm & polished',         color: '#a855f7' },
 ];
 
 const S = {
@@ -148,8 +144,8 @@ const S = {
   },
   // Step 2 — name selection
   nameGrid: {
-    display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))',
-    gap:'12px', marginBottom:'20px',
+    display:'grid', gridTemplateColumns:'1fr 1fr',
+    gap:'16px', marginBottom:'20px',
   },
   nameCard: (selected, color) => ({
     background: selected ? `${color}18` : 'rgba(255,255,255,0.04)',
@@ -333,8 +329,8 @@ export default function Signup() {
     <div style={S.page}>
       <div style={S.cardWide}>
         <div style={S.icon}>✨</div>
-        <div style={S.title}>Choose Your Kova Personality</div>
-        <div style={S.sub}>Step 2 of 2 — Pick a personality for your assistant</div>
+        <div style={S.title}>Choose Your Kova Voice</div>
+        <div style={S.sub}>Step 2 of 2 — Pick a voice for your assistant</div>
 
         {error && <div style={S.error}>{error}</div>}
 
