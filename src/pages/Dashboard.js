@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
-const PLAN_PRICE = 49.99;
+const PLAN_PRICES = { assistant: 49.99, pro: 149.99 };
 
 const G = { // global styles
   page: { minHeight:'100vh', background:'#f8f5f0', fontFamily:"'Inter',sans-serif", color:'#1a1a1a' },
@@ -141,14 +141,14 @@ export default function Dashboard() {
     active:   customers.filter(c => c.subscription_status === 'active').length,
     agents:   customers.filter(c => c.subscription_status === 'active').length,
     mrr:      customers.filter(c => c.subscription_status === 'active')
-                       .reduce((s, c) => s + PLAN_PRICE, 0).toFixed(2),
+                       .reduce((s, c) => s + (PLAN_PRICES[c.plan] || 49.99), 0).toFixed(2),
   };
 
   return (
     <div style={G.page}>
       <nav style={G.nav}>
         <div>
-          <span style={G.logo}>AI Assistant</span>
+          <span style={G.logo}>Kova</span>
           <span style={G.logoBadge}>AI PLATFORM</span>
         </div>
         <div style={G.navRight}>
@@ -159,13 +159,13 @@ export default function Dashboard() {
 
       <div style={G.main}>
         <div style={G.h1}>Dashboard</div>
-        <div style={G.sub}>Your AI assistant clients — powered by Claude</div>
+        <div style={G.sub}>Your Kova clients — AI-powered personal assistants</div>
 
         <div style={G.statsGrid}>
           {[
             { num: stats.total,  label: 'Total Clients',    color: '#1a1a1a' },
             { num: stats.active, label: 'Active Subs',       color: '#2e7d32' },
-            { num: stats.agents, label: 'AI Agents Live',    color: '#6a1b9a' },
+            { num: stats.agents, label: 'Agents Live',    color: '#6a1b9a' },
             { num: `$${stats.mrr}`, label: 'MRR',            color: '#1565c0' },
           ].map(s => (
             <div key={s.label} style={G.statCard}>
@@ -189,7 +189,7 @@ export default function Dashboard() {
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
                 <tr>
-                  {['Client','WhatsApp Number','Plan','Subscription','AI Agent','Actions'].map(h => (
+                  {['Client','WhatsApp Number','Plan','Subscription','Agent','Actions'].map(h => (
                     <th key={h} style={G.th}>{h}</th>
                   ))}
                 </tr>
@@ -207,7 +207,7 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td style={{ ...G.td, textTransform:'capitalize' }}>
-                      AI Assistant — ${`$${PLAN_PRICE}/mo`}
+                      {c.plan === 'pro' ? 'Kova Pro' : 'Kova Standard'} — ${`$${PLAN_PRICES[c.plan] || 49.99}/mo`}
                     </td>
                     <td style={G.td}><span style={G.badge(c.subscription_status)}>{c.subscription_status}</span></td>
                     <td style={G.td}><span style={G.agentBadge(c.subscription_status === 'active' ? 'active' : 'pending')}>{c.subscription_status === 'active' ? 'Active' : 'Inactive'}</span></td>
@@ -248,14 +248,17 @@ export default function Dashboard() {
                 onChange={e => setForm(f => ({ ...f, whatsapp_from: e.target.value }))}
                 placeholder="+1234567890" />
               <label style={G.label}>Plan</label>
-              <div style={{ ...G.input, background:'#f0f0ff', color:'#5c5c9e' }}>
-                AI Assistant — ${`$${PLAN_PRICE}/month`}
-              </div>
+              <select style={{ ...G.input, background:'#f0f0ff', color:'#5c5c9e' }}
+                value={form.plan}
+                onChange={e => setForm(f => ({ ...f, plan: e.target.value }))}>
+                <option value="assistant">Kova Standard — $49.99/month</option>
+                <option value="pro">Kova Pro — $149.99/month</option>
+              </select>
               <div style={{ background:'#f0f0ff', borderRadius:'8px', padding:'12px 14px',
                 fontSize:'13px', color:'#5c5c9e', marginBottom:'20px' }}>
                 💡 After creating, go to the client's profile to set up their preferences —
                 dietary needs, airline loyalty numbers, seat preferences, and more.
-                The AI assistant will use all of this automatically.
+                Kova will use all of this automatically.
               </div>
               <div style={G.modalBtns}>
                 <button style={G.cancelBtn} type="button" onClick={() => setModal(false)}>Cancel</button>

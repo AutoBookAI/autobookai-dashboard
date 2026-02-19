@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
+const SOCIAL_PROVIDERS = [
+  { id: 'google',    label: 'Google',    color: '#4285F4', icon: 'G' },
+  { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f' },
+  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in' },
+  { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: 'IG' },
+  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\uF8FF' },
+];
 
 const C = {
   page: {
@@ -14,7 +24,7 @@ const C = {
     backdropFilter: 'blur(20px)',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '16px',
-    padding: '52px 48px',
+    padding: '48px 44px',
     width: '100%', maxWidth: '420px',
     boxShadow: '0 32px 80px rgba(0,0,0,0.4)',
   },
@@ -24,7 +34,7 @@ const C = {
     fontWeight: 600, fontSize: '26px', color: '#fff',
     marginBottom: '6px', letterSpacing: '-0.3px',
   },
-  sub: { color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '40px' },
+  sub: { color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginBottom: '32px' },
   label: {
     display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '11px',
     fontWeight: 500, letterSpacing: '1.2px', textTransform: 'uppercase', marginBottom: '8px',
@@ -53,6 +63,36 @@ const C = {
     display: 'block', textAlign: 'center', marginTop: '24px',
     color: 'rgba(255,255,255,0.4)', fontSize: '13px', textDecoration: 'none',
   },
+  divider: {
+    display: 'flex', alignItems: 'center', gap: '12px',
+    margin: '24px 0', color: 'rgba(255,255,255,0.2)', fontSize: '12px',
+    textTransform: 'uppercase', letterSpacing: '1px',
+  },
+  dividerLine: { flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' },
+  socialGrid: {
+    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '4px',
+  },
+  socialBtn: (color) => ({
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px', padding: '12px', cursor: 'pointer',
+    color: '#fff', fontSize: '13px', fontWeight: 500,
+    fontFamily: "'Inter', sans-serif", transition: 'all 0.15s',
+    textDecoration: 'none',
+  }),
+  socialIcon: (color) => ({
+    width: '22px', height: '22px', borderRadius: '4px',
+    background: color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0,
+  }),
+  socialBtnWide: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px', padding: '12px', cursor: 'pointer',
+    color: '#fff', fontSize: '13px', fontWeight: 500,
+    fontFamily: "'Inter', sans-serif", transition: 'all 0.15s',
+    textDecoration: 'none', gridColumn: 'span 2',
+  },
 };
 
 export default function PortalLogin() {
@@ -61,6 +101,28 @@ export default function PortalLogin() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Handle OAuth callback redirect (token in URL params)
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const name = searchParams.get('name');
+    const id = searchParams.get('id');
+    const oauthEmail = searchParams.get('email');
+    const oauthError = searchParams.get('error');
+
+    if (oauthError) {
+      setError(decodeURIComponent(oauthError));
+    }
+
+    if (token && id) {
+      localStorage.setItem('customerToken', token);
+      localStorage.setItem('customer', JSON.stringify({
+        id: parseInt(id), name: decodeURIComponent(name || ''), email: decodeURIComponent(oauthEmail || ''),
+      }));
+      navigate('/portal');
+    }
+  }, [searchParams, navigate]);
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -75,14 +137,38 @@ export default function PortalLogin() {
     } finally { setLoading(false); }
   }
 
+  function socialLogin(provider) {
+    window.location.href = `${API_URL}/api/auth/social/${provider}`;
+  }
+
   return (
     <div style={C.page}>
       <div style={C.card}>
         <div style={C.crown}>🤖</div>
-        <div style={C.title}>Your AI Assistant</div>
+        <div style={C.title}>Kova</div>
         <div style={C.sub}>Sign in to manage your preferences and billing</div>
 
         {error && <div style={C.error}>{error}</div>}
+
+        {/* Social login buttons */}
+        <div style={C.socialGrid}>
+          {SOCIAL_PROVIDERS.slice(0, 4).map(p => (
+            <div key={p.id} style={C.socialBtn(p.color)} onClick={() => socialLogin(p.id)}>
+              <div style={C.socialIcon(p.color)}>{p.icon}</div>
+              <span>{p.label}</span>
+            </div>
+          ))}
+          <div style={C.socialBtnWide} onClick={() => socialLogin('apple')}>
+            <div style={C.socialIcon('#000')}>{'\u{F8FF}'}</div>
+            <span>Apple</span>
+          </div>
+        </div>
+
+        <div style={C.divider}>
+          <div style={C.dividerLine} />
+          <span>or sign in with email</span>
+          <div style={C.dividerLine} />
+        </div>
 
         <form onSubmit={handleLogin}>
           <div style={C.field}>

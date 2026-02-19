@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../lib/api';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
+const SOCIAL_PROVIDERS = [
+  { id: 'google',    label: 'Google',    color: '#4285F4', icon: 'G' },
+  { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f' },
+  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in' },
+  { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: 'IG' },
+  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\u{F8FF}' },
+];
 
 const AI_NAMES = [
   { name: 'Tiger',    emoji: '🐯', tagline: 'Energetic & confident',       color: '#f59e0b' },
@@ -94,6 +104,48 @@ const S = {
     color:'rgba(255,255,255,0.3)', fontSize:'11px', marginTop:'16px', lineHeight:1.5,
     textAlign:'center',
   },
+  divider: {
+    display:'flex', alignItems:'center', gap:'12px',
+    margin:'20px 0', color:'rgba(255,255,255,0.2)', fontSize:'12px',
+    textTransform:'uppercase', letterSpacing:'1px',
+  },
+  dividerLine: { flex:1, height:'1px', background:'rgba(255,255,255,0.1)' },
+  socialGrid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'4px' },
+  socialBtn: (color) => ({
+    display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+    background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
+    borderRadius:'8px', padding:'11px', cursor:'pointer',
+    color:'#fff', fontSize:'13px', fontWeight:500,
+    fontFamily:"'Inter',sans-serif", transition:'all 0.15s',
+  }),
+  socialIcon: (color) => ({
+    width:'20px', height:'20px', borderRadius:'4px',
+    background:color, display:'flex', alignItems:'center', justifyContent:'center',
+    fontSize:'11px', fontWeight:700, color:'#fff', flexShrink:0,
+  }),
+  socialBtnWide: {
+    display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+    background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
+    borderRadius:'8px', padding:'11px', cursor:'pointer',
+    color:'#fff', fontSize:'13px', fontWeight:500,
+    fontFamily:"'Inter',sans-serif", gridColumn:'span 2',
+  },
+  // Plan selector
+  planGrid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'20px' },
+  planCard: (selected) => ({
+    background: selected ? 'rgba(102,126,234,0.12)' : 'rgba(255,255,255,0.04)',
+    border: selected ? '2px solid #667eea' : '1px solid rgba(255,255,255,0.1)',
+    borderRadius:'12px', padding:'16px', cursor:'pointer', transition:'all 0.15s',
+    textAlign:'center',
+  }),
+  planName: { color:'#fff', fontWeight:600, fontSize:'15px', marginBottom:'4px' },
+  planPrice: { color:'#a0b4f7', fontWeight:700, fontSize:'20px', marginBottom:'4px' },
+  planDesc: { color:'rgba(255,255,255,0.4)', fontSize:'11px' },
+  planBadge: {
+    display:'inline-block', background:'linear-gradient(135deg,#667eea,#764ba2)',
+    color:'#fff', fontSize:'9px', fontWeight:700, letterSpacing:'0.5px',
+    padding:'2px 8px', borderRadius:'10px', marginBottom:'6px', textTransform:'uppercase',
+  },
   // Step 2 — name selection
   nameGrid: {
     display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))',
@@ -118,10 +170,12 @@ const S = {
 };
 
 export default function Signup() {
+  const [searchParams] = useSearchParams();
   const [step, setStep]                   = useState(1);
   const [name, setName]                   = useState('');
   const [email, setEmail]                 = useState('');
   const [password, setPassword]           = useState('');
+  const [plan, setPlan]                   = useState(searchParams.get('plan') === 'pro' ? 'pro' : 'assistant');
   const [agreed, setAgreed]               = useState(false);
   const [assistantName, setAssistantName] = useState('');
   const [customName, setCustomName]       = useState('');
@@ -159,14 +213,14 @@ export default function Signup() {
     setError('');
     const finalName = isCustom ? customName.trim() : assistantName;
     if (!finalName) {
-      setError('Please choose a name for your AI assistant');
+      setError('Please choose a name for your Kova assistant');
       return;
     }
 
     setLoading(true);
     try {
       const res = await api.post('/api/signup', {
-        name, email, password,
+        name, email, password, plan,
         assistant_name: finalName,
       });
       window.location.href = res.data.checkoutUrl;
@@ -185,12 +239,43 @@ export default function Signup() {
       <div style={S.page}>
         <div style={S.card}>
           <div style={S.icon}>🤖</div>
-          <div style={S.title}>Get Your AI Assistant</div>
+          <div style={S.title}>Get Your Kova Assistant</div>
           <div style={S.sub}>Step 1 of 2 — Create your account</div>
 
-          <div style={S.price}>
-            <span style={S.priceLabel}>AI Assistant — monthly</span>
-            <span style={S.priceAmount}>$49.99/mo</span>
+          {/* Social signup buttons */}
+          <div style={S.socialGrid}>
+            {SOCIAL_PROVIDERS.slice(0, 4).map(p => (
+              <div key={p.id} style={S.socialBtn(p.color)}
+                onClick={() => { window.location.href = `${API_URL}/api/auth/social/${p.id}?signup=true`; }}>
+                <div style={S.socialIcon(p.color)}>{p.icon}</div>
+                <span>{p.label}</span>
+              </div>
+            ))}
+            <div style={S.socialBtnWide}
+              onClick={() => { window.location.href = `${API_URL}/api/auth/social/apple?signup=true`; }}>
+              <div style={S.socialIcon('#000')}>{'\u{F8FF}'}</div>
+              <span>Apple</span>
+            </div>
+          </div>
+
+          <div style={S.divider}>
+            <div style={S.dividerLine} />
+            <span>or sign up with email</span>
+            <div style={S.dividerLine} />
+          </div>
+
+          <div style={S.planGrid}>
+            <div style={S.planCard(plan === 'assistant')} onClick={() => setPlan('assistant')}>
+              <div style={S.planName}>Standard</div>
+              <div style={S.planPrice}>$49.99</div>
+              <div style={S.planDesc}>30 messages/day</div>
+            </div>
+            <div style={S.planCard(plan === 'pro')} onClick={() => setPlan('pro')}>
+              <div style={S.planBadge}>Popular</div>
+              <div style={S.planName}>Pro</div>
+              <div style={S.planPrice}>$149.99</div>
+              <div style={S.planDesc}>100 messages/day</div>
+            </div>
           </div>
 
           {error && <div style={S.error}>{error}</div>}
@@ -219,7 +304,7 @@ export default function Signup() {
                 <span style={S.link} onClick={e => { e.preventDefault(); navigate('/terms'); }}>Terms of Service</span>
                 {' '}and{' '}
                 <span style={S.link} onClick={e => { e.preventDefault(); navigate('/privacy'); }}>Privacy Policy</span>.
-                I understand that the AI assistant may make mistakes and that AutoBookAI is not liable
+                I understand that the AI assistant may make mistakes and that Kova is not liable
                 for actions taken on my behalf.
               </label>
             </div>
@@ -229,7 +314,7 @@ export default function Signup() {
           </form>
 
           <div style={S.terms}>
-            $49.99/month. Cancel anytime. 30 messages/day included.
+            {plan === 'pro' ? '$149.99' : '$49.99'}/month. Cancel anytime. {plan === 'pro' ? '100' : '30'} messages/day included.
           </div>
 
           <div style={{ textAlign:'center' }}>
@@ -248,7 +333,7 @@ export default function Signup() {
     <div style={S.page}>
       <div style={S.cardWide}>
         <div style={S.icon}>✨</div>
-        <div style={S.title}>Choose Your AI Assistant</div>
+        <div style={S.title}>Choose Your Kova Personality</div>
         <div style={S.sub}>Step 2 of 2 — Pick a personality for your assistant</div>
 
         {error && <div style={S.error}>{error}</div>}

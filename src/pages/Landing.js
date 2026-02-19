@@ -65,26 +65,48 @@ const L = {
 
   // ── Pricing ───────────────────────────────────────────────────────────────
   priceBg: { padding:'60px 20px', textAlign:'center' },
+  priceGrid: {
+    display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))',
+    gap:'24px', maxWidth:'780px', margin:'0 auto',
+  },
   priceCard: {
     background:'#fff', border:'2px solid #e0d8f0', borderRadius:'20px',
-    padding:'48px 40px', maxWidth:'420px', margin:'0 auto',
+    padding:'40px 32px',
     boxShadow:'0 16px 48px rgba(0,0,0,0.08)',
   },
+  priceCardPro: {
+    background:'#fff', border:'2px solid #764ba2', borderRadius:'20px',
+    padding:'40px 32px', position:'relative',
+    boxShadow:'0 16px 48px rgba(118,75,162,0.15)',
+  },
+  pricePopular: {
+    position:'absolute', top:'-14px', left:'50%', transform:'translateX(-50%)',
+    background:'linear-gradient(135deg,#667eea,#764ba2)', color:'#fff',
+    fontSize:'11px', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase',
+    padding:'5px 18px', borderRadius:'20px',
+  },
+  pricePlanName: { fontWeight:600, fontSize:'18px', marginBottom:'8px', color:'#1a1a1a' },
   priceAmount: {
-    fontFamily:"'Playfair Display',serif", fontSize:'56px', fontWeight:700,
+    fontFamily:"'Playfair Display',serif", fontSize:'48px', fontWeight:700,
     color:'#1a1a1a', lineHeight:1,
   },
-  pricePer: { color:'#888', fontSize:'16px', marginBottom:'28px' },
+  pricePer: { color:'#888', fontSize:'16px', marginBottom:'24px' },
   priceFeature: {
     display:'flex', alignItems:'center', gap:'10px',
-    fontSize:'14px', color:'#444', padding:'8px 0', textAlign:'left',
+    fontSize:'14px', color:'#444', padding:'7px 0', textAlign:'left',
   },
   priceCheck: { color:'#667eea', fontWeight:700, fontSize:'16px', flexShrink:0 },
   priceCta: {
     display:'inline-block', width:'100%', background:'linear-gradient(135deg,#667eea,#764ba2)',
-    border:'none', borderRadius:'10px', color:'#fff', padding:'16px',
-    fontSize:'16px', fontWeight:600, cursor:'pointer', marginTop:'28px',
+    border:'none', borderRadius:'10px', color:'#fff', padding:'14px',
+    fontSize:'15px', fontWeight:600, cursor:'pointer', marginTop:'24px',
     boxShadow:'0 8px 32px rgba(102,126,234,0.35)', textDecoration:'none', textAlign:'center',
+  },
+  priceCtaOutline: {
+    display:'inline-block', width:'100%', background:'transparent',
+    border:'2px solid #667eea', borderRadius:'10px', color:'#667eea', padding:'12px',
+    fontSize:'15px', fontWeight:600, cursor:'pointer', marginTop:'24px',
+    textDecoration:'none', textAlign:'center',
   },
 
   // ── Footer ────────────────────────────────────────────────────────────────
@@ -97,21 +119,30 @@ const L = {
 const FEATURES = [
   { icon:'🔍', title:'Web Search with Citations', desc:'Ask anything — your AI searches the web and always cites its sources with links.' },
   { icon:'📧', title:'Send Emails', desc:'Tell your AI to email anyone. It composes and sends on your behalf.' },
-  { icon:'📞', title:'Make Phone Calls', desc:'Your AI can call restaurants, airlines, or anyone else to handle things for you.' },
-  { icon:'🍽️', title:'Book Restaurants', desc:'Just say where and when. Your AI books on OpenTable, Resy, or calls directly.' },
+  { icon:'📞', title:'Make Phone Calls', desc:'Kova can call restaurants, airlines, or anyone else to handle things for you.' },
+  { icon:'🍽️', title:'Book Restaurants', desc:'Just say where and when. Kova books on OpenTable, Resy, or calls directly.' },
   { icon:'📅', title:'Calendar Management', desc:'Schedule appointments, set reminders, and manage your calendar hands-free.' },
-  { icon:'🌐', title:'Browse & Book Anything', desc:'Your AI uses browser automation to fill forms, sign up, and book on any website.' },
+  { icon:'🌐', title:'Browse & Book Anything', desc:'Kova uses browser automation to fill forms, sign up, and book on any website.' },
 ];
 
-const PLAN_FEATURES = [
-  'WhatsApp AI assistant 24/7',
+const STANDARD_FEATURES = [
+  'Kova AI assistant 24/7 on WhatsApp',
+  '30 messages per day',
   'Restaurant & travel bookings',
   'Send emails & make calls on your behalf',
   'Web search with cited sources',
   'Calendar management',
   'Remembers all your preferences',
   'Dedicated WhatsApp number',
-  'Fully private & isolated AI agent',
+];
+
+const PRO_FEATURES = [
+  'Everything in Standard',
+  '100 messages per day',
+  'Priority response times',
+  'Advanced browser automation',
+  'Dedicated WhatsApp number',
+  'Full preference memory',
 ];
 
 export default function Landing() {
@@ -122,15 +153,15 @@ export default function Landing() {
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <div style={L.hero}>
         <div style={L.heroTag}>Your personal AI on WhatsApp</div>
-        <h1 style={L.heroH1}>An AI assistant that actually does things for you</h1>
+        <h1 style={L.heroH1}>Meet Kova — your AI that actually does things</h1>
         <p style={L.heroSub}>
           Book restaurants, send emails, make phone calls, manage your calendar — all through
-          a simple WhatsApp message. Powered by Claude AI.
+          a simple WhatsApp message. Powered by OpenClaw.
         </p>
         <button style={L.heroCta} onClick={() => navigate('/signup')}>
           Get Started →
         </button>
-        <div style={L.heroPrice}>$49.99/month — cancel anytime</div>
+        <div style={L.heroPrice}>Starting at $49.99/month — cancel anytime</div>
         <div style={{ marginTop:'20px' }}>
           <span
             style={{ color:'rgba(255,255,255,0.4)', fontSize:'13px', cursor:'pointer', textDecoration:'underline' }}
@@ -144,7 +175,7 @@ export default function Landing() {
       {/* ── How it works ──────────────────────────────────────────────────── */}
       <div style={L.section}>
         <h2 style={L.sectionTitle}>How It Works</h2>
-        <p style={L.sectionSub}>Three steps to your own personal AI assistant</p>
+        <p style={L.sectionSub}>Three steps to your own personal Kova assistant</p>
         <div style={L.stepsGrid}>
           {[
             { num:'1', title:'Sign up & pay', desc:'Create your account and subscribe. Takes 2 minutes.' },
@@ -180,19 +211,37 @@ export default function Landing() {
       {/* ── Pricing ──────────────────────────────────────────────────────── */}
       <div style={L.priceBg}>
         <h2 style={{ ...L.sectionTitle, marginBottom:'12px' }}>Simple Pricing</h2>
-        <p style={L.sectionSub}>One plan, everything included. No hidden fees.</p>
-        <div style={L.priceCard}>
-          <div style={L.priceAmount}>$49.99</div>
-          <div style={L.pricePer}>per month</div>
-          {PLAN_FEATURES.map(f => (
-            <div key={f} style={L.priceFeature}>
-              <span style={L.priceCheck}>✓</span>
-              <span>{f}</span>
-            </div>
-          ))}
-          <button style={L.priceCta} onClick={() => navigate('/signup')}>
-            Get Your AI Assistant →
-          </button>
+        <p style={L.sectionSub}>Two plans, everything included. No hidden fees.</p>
+        <div style={L.priceGrid}>
+          <div style={L.priceCard}>
+            <div style={L.pricePlanName}>Standard</div>
+            <div style={L.priceAmount}>$49.99</div>
+            <div style={L.pricePer}>per month</div>
+            {STANDARD_FEATURES.map(f => (
+              <div key={f} style={L.priceFeature}>
+                <span style={L.priceCheck}>✓</span>
+                <span>{f}</span>
+              </div>
+            ))}
+            <button style={L.priceCtaOutline} onClick={() => navigate('/signup')}>
+              Get Started →
+            </button>
+          </div>
+          <div style={L.priceCardPro}>
+            <div style={L.pricePopular}>Most Popular</div>
+            <div style={L.pricePlanName}>Pro</div>
+            <div style={L.priceAmount}>$149.99</div>
+            <div style={L.pricePer}>per month</div>
+            {PRO_FEATURES.map(f => (
+              <div key={f} style={L.priceFeature}>
+                <span style={L.priceCheck}>✓</span>
+                <span>{f}</span>
+              </div>
+            ))}
+            <button style={L.priceCta} onClick={() => navigate('/signup?plan=pro')}>
+              Get Kova Pro →
+            </button>
+          </div>
         </div>
       </div>
 
@@ -203,7 +252,7 @@ export default function Landing() {
           <span style={{ margin:'0 12px' }}>|</span>
           <span style={{ cursor:'pointer', textDecoration:'underline' }} onClick={() => navigate('/privacy')}>Privacy Policy</span>
         </div>
-        © {new Date().getFullYear()} AutoBookAI. All rights reserved.
+        © {new Date().getFullYear()} Kova. All rights reserved.
       </div>
     </div>
   );

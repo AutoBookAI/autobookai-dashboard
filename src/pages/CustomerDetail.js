@@ -179,7 +179,7 @@ export default function CustomerDetail() {
         <span style={S.navTitle}>{customer.name}</span>
         <span style={S.badge(customer.subscription_status)}>{customer.subscription_status}</span>
         <span style={S.agentBadge(customer.subscription_status === 'active' ? 'active' : 'pending')}>
-          AI Assistant: {customer.subscription_status === 'active' ? 'Active' : 'Inactive'}
+          Kova: {customer.subscription_status === 'active' ? 'Active' : 'Inactive'}
         </span>
       </nav>
 
@@ -199,7 +199,7 @@ export default function CustomerDetail() {
           </div>
 
           <div style={S.sideSection}>
-            <div style={S.sideLabel}>AI Assistant</div>
+            <div style={S.sideLabel}>Kova Agent</div>
             <div style={S.infoKey}>Status</div>
             <div style={S.infoVal}>
               <span style={S.agentBadge(customer.subscription_status === 'active' ? 'active' : 'pending')}>
@@ -233,7 +233,7 @@ export default function CustomerDetail() {
           <div style={S.sideSection}>
             <div style={S.sideLabel}>Billing</div>
             <div style={S.infoKey}>Plan</div>
-            <div style={S.infoVal}>AI Assistant — $49.99/mo</div>
+            <div style={S.infoVal}>Kova — $49.99/mo</div>
             {customer.subscription_status !== 'active' ? (
               <button style={S.subscribeBtn} onClick={handleSubscribe}>
                 💳 Send Payment Link
@@ -257,11 +257,11 @@ export default function CustomerDetail() {
         <div style={S.main}>
           <div style={S.infoBox}>
             <strong>How this works:</strong> Every preference you fill in here is securely stored and automatically
-            loaded when {customer.name} messages their AI assistant. When they ask for a restaurant booking or
-            flight, Claude already knows their dietary needs, loyalty numbers, and preferences — no need to ask.
+            loaded when {customer.name} messages their Kova assistant. When they ask for a restaurant booking or
+            flight, Kova already knows their dietary needs, loyalty numbers, and preferences — no need to ask.
           </div>
 
-          {saved && <div style={S.successBox}>✅ Profile saved and synced to AI agent</div>}
+          {saved && <div style={S.successBox}>✅ Profile saved and synced to Kova</div>}
 
           {/* Personal Info */}
           <div style={S.card}>
@@ -417,7 +417,7 @@ export default function CustomerDetail() {
 
           <div style={S.saveRow}>
             <button style={S.saveBtn} onClick={saveProfile} disabled={saving}>
-              {saving ? 'Saving...' : '💾 Save & Sync to AI Agent'}
+              {saving ? 'Saving...' : '💾 Save & Sync to Kova'}
             </button>
           </div>
         </div>

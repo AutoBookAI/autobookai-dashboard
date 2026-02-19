@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
 
 const S = {
@@ -55,8 +55,25 @@ const S = {
 export default function Portal() {
   const [me, setMe] = useState(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [error, setError] = useState(null);
+
+  // Handle OAuth redirect — store token from URL params
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const name = searchParams.get('name');
+    const id = searchParams.get('id');
+    const email = searchParams.get('email');
+    if (token && id) {
+      localStorage.setItem('customerToken', token);
+      localStorage.setItem('customer', JSON.stringify({
+        id: parseInt(id), name: decodeURIComponent(name || ''), email: decodeURIComponent(email || ''),
+      }));
+      // Clean URL
+      window.history.replaceState({}, '', '/portal');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     customerApi.get('/api/customer/me').then(r => setMe(r.data)).catch(() => setError('Failed to load your account'));
@@ -90,7 +107,7 @@ export default function Portal() {
   return (
     <div style={S.page}>
       <nav style={S.nav}>
-        <span style={S.logo}>My AI Assistant</span>
+        <span style={S.logo}>My Kova</span>
         <div style={S.navRight}>
           <span style={S.userName}>{me.name}</span>
           <button style={S.logoutBtn} onClick={logout}>Sign out</button>
@@ -99,7 +116,7 @@ export default function Portal() {
 
       <div style={S.main}>
         <div style={S.h1}>Welcome, {me.name.split(' ')[0]}</div>
-        <div style={S.sub}>Your personal AI assistant dashboard</div>
+        <div style={S.sub}>Your personal Kova dashboard</div>
 
         {me.whatsapp_to && (
           <div style={S.whatsappTip}>
@@ -108,7 +125,7 @@ export default function Portal() {
               {me.whatsapp_to}
             </span>
             <br />
-            Save this number in your contacts and send a message to start using your AI assistant.
+            Save this number in your contacts and send a message to start using Kova.
           </div>
         )}
 
@@ -120,7 +137,7 @@ export default function Portal() {
             </div>
           </div>
           <div style={S.card}>
-            <div style={S.cardLabel}>AI Assistant</div>
+            <div style={S.cardLabel}>Kova Agent</div>
             <div style={S.cardValue}>
               <span style={S.badge(me.subscription_status === 'active' ? 'active' : 'inactive')}>
                 {me.subscription_status === 'active' ? 'Active' : 'Inactive'}

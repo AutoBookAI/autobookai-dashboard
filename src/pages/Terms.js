@@ -47,14 +47,14 @@ export default function Terms() {
         <span style={S.backLink} onClick={() => navigate(-1)}>← Back</span>
 
         <p style={S.p}>
-          These Terms of Service ("Terms") govern your access to and use of the AutoBookAI platform
-          ("Service"), operated by AutoBookAI ("we", "us", "our"). By creating an account or using
+          These Terms of Service ("Terms") govern your access to and use of the Kova platform
+          ("Service"), operated by Kova ("we", "us", "our"). By creating an account or using
           the Service, you agree to be bound by these Terms. If you do not agree, do not use the Service.
         </p>
 
         <h2 style={S.h2}>1. Service Description</h2>
         <p style={S.p}>
-          AutoBookAI provides an AI-powered personal assistant accessible via WhatsApp. The assistant
+          Kova provides an AI-powered personal assistant accessible via WhatsApp. The assistant
           can help with tasks including but not limited to: sending emails, making phone calls, searching
           the web, managing calendar events, and performing actions on websites on your behalf such as
           making reservations or bookings.
@@ -136,7 +136,7 @@ export default function Terms() {
 
         <h2 style={S.h2}>9. Indemnification</h2>
         <p style={S.p}>
-          You agree to indemnify, defend, and hold harmless AutoBookAI and its owners, officers,
+          You agree to indemnify, defend, and hold harmless Kova and its owners, officers,
           employees, and agents from any claims, damages, losses, liabilities, costs, and expenses
           (including reasonable attorney fees) arising from your use of the Service, your violation
           of these Terms, or any actions taken by the AI on your behalf.

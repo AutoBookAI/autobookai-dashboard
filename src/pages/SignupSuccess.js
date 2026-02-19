@@ -121,7 +121,7 @@ export default function SignupSuccess() {
         <div style={S.card}>
           <div style={S.icon}>⏳</div>
           <div style={S.title}>Setting things up...</div>
-          <div style={S.loadingText}>Confirming your payment and provisioning your AI assistant</div>
+          <div style={S.loadingText}>Confirming your payment and setting up your Kova assistant</div>
         </div>
       </div>
     );
@@ -151,7 +151,7 @@ export default function SignupSuccess() {
     <div style={S.page}>
       <div style={S.card}>
         <div style={S.icon}>🎉</div>
-        <div style={S.title}>Welcome to AI Assistant!</div>
+        <div style={S.title}>Welcome to Kova!</div>
         <div style={S.sub}>
           Your account is set up and your personal AI is{' '}
           {status === 'pending' ? 'being deployed...' : 'ready to go.'}
@@ -159,14 +159,14 @@ export default function SignupSuccess() {
 
         {status === 'pending' && (
           <div style={S.statusBox}>
-            ⏳ Your AI agent is being deployed. This takes about 30 seconds.
+            ⏳ Your Kova agent is being deployed. This takes about 30 seconds.
             This page will update automatically.
           </div>
         )}
 
         {status === 'timeout' && (
           <div style={{ ...S.statusBox, borderColor:'rgba(255,180,100,0.3)', color:'#ffb464' }}>
-            This is taking longer than expected. Your AI is still being set up — please check back
+            This is taking longer than expected. Your Kova agent is still being set up — please check back
             in a few minutes or contact support if it persists.
           </div>
         )}
@@ -175,7 +175,7 @@ export default function SignupSuccess() {
           <div style={S.numberBox}>
             <div style={S.numberLabel}>Your WhatsApp AI Number</div>
             <div style={S.number}>{customer.whatsapp_to}</div>
-            <div style={S.numberHint}>Save this number in your contacts as "AI Assistant"</div>
+            <div style={S.numberHint}>Save this number in your contacts as "Kova"</div>
           </div>
         )}
 

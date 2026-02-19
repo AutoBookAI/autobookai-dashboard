@@ -85,7 +85,7 @@ export default function PortalActivity() {
             <div style={S.empty}>Loading...</div>
           ) : activities.length === 0 ? (
             <div style={S.empty}>
-              No activity yet. Send a message to your AI assistant on WhatsApp to get started.
+              No activity yet. Send a message to Kova on WhatsApp to get started.
             </div>
           ) : (
             activities.map(a => (

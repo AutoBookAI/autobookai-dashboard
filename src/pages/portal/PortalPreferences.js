@@ -2,6 +2,73 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
 
+const APP_CATEGORIES = [
+  { category: 'Ride Sharing', apps: [
+    { id: 'uber', name: 'Uber', icon: '🚗' },
+    { id: 'lyft', name: 'Lyft', icon: '🚕' },
+  ]},
+  { category: 'Food Delivery', apps: [
+    { id: 'doordash', name: 'DoorDash', icon: '🍔' },
+    { id: 'ubereats', name: 'Uber Eats', icon: '🥡' },
+    { id: 'grubhub', name: 'Grubhub', icon: '🍕' },
+    { id: 'postmates', name: 'Postmates', icon: '📦' },
+  ]},
+  { category: 'Restaurants', apps: [
+    { id: 'opentable', name: 'OpenTable', icon: '🍽️' },
+    { id: 'resy', name: 'Resy', icon: '🥂' },
+    { id: 'yelp', name: 'Yelp', icon: '⭐' },
+  ]},
+  { category: 'Travel', apps: [
+    { id: 'airbnb', name: 'Airbnb', icon: '🏡' },
+    { id: 'bookingcom', name: 'Booking.com', icon: '🏨' },
+    { id: 'expedia', name: 'Expedia', icon: '✈️' },
+    { id: 'hotelscom', name: 'Hotels.com', icon: '🛎️' },
+  ]},
+  { category: 'Airlines', apps: [
+    { id: 'delta', name: 'Delta', icon: '🔺' },
+    { id: 'united', name: 'United', icon: '🌐' },
+    { id: 'american', name: 'American Airlines', icon: '🦅' },
+    { id: 'southwest', name: 'Southwest', icon: '❤️' },
+    { id: 'jetblue', name: 'JetBlue', icon: '💙' },
+  ]},
+  { category: 'Calendar & Email', apps: [
+    { id: 'google_calendar', name: 'Google Calendar', icon: '📅' },
+    { id: 'outlook_calendar', name: 'Outlook Calendar', icon: '📆' },
+    { id: 'apple_calendar', name: 'Apple Calendar', icon: '🗓️' },
+    { id: 'gmail', name: 'Gmail', icon: '📧' },
+    { id: 'outlook', name: 'Outlook', icon: '📨' },
+  ]},
+  { category: 'Shopping', apps: [
+    { id: 'amazon', name: 'Amazon', icon: '📦' },
+    { id: 'instacart', name: 'Instacart', icon: '🛒' },
+    { id: 'walmart', name: 'Walmart', icon: '🏪' },
+  ]},
+  { category: 'Entertainment', apps: [
+    { id: 'spotify', name: 'Spotify', icon: '🎵' },
+    { id: 'netflix', name: 'Netflix', icon: '🎬' },
+  ]},
+  { category: 'Productivity', apps: [
+    { id: 'notion', name: 'Notion', icon: '📝' },
+    { id: 'slack', name: 'Slack', icon: '💬' },
+    { id: 'trello', name: 'Trello', icon: '📋' },
+  ]},
+  { category: 'Finance', apps: [
+    { id: 'venmo', name: 'Venmo', icon: '💸' },
+    { id: 'paypal', name: 'PayPal', icon: '💰' },
+    { id: 'cashapp', name: 'Cash App', icon: '💵' },
+  ]},
+  { category: 'Health', apps: [
+    { id: 'myfitnesspal', name: 'MyFitnessPal', icon: '💪' },
+    { id: 'apple_health', name: 'Apple Health', icon: '❤️‍🩹' },
+  ]},
+  { category: 'Social', apps: [
+    { id: 'instagram', name: 'Instagram', icon: '📸' },
+    { id: 'facebook', name: 'Facebook', icon: '👤' },
+    { id: 'linkedin', name: 'LinkedIn', icon: '💼' },
+    { id: 'twitter', name: 'Twitter/X', icon: '🐦' },
+  ]},
+];
+
 const S = {
   page: { minHeight: '100vh', background: '#f8f5f0', fontFamily: "'Inter',sans-serif", color: '#1a1a1a' },
   nav: {
@@ -60,6 +127,56 @@ const S = {
     background: '#f0f0ff', border: '1px solid #e0d8f0', borderRadius: '8px',
     padding: '14px 16px', fontSize: '13px', color: '#5c5c9e', marginBottom: '24px',
   },
+  // Connected Apps
+  appCategoryTitle: {
+    fontSize: '13px', fontWeight: 600, color: '#999', letterSpacing: '0.5px',
+    textTransform: 'uppercase', marginBottom: '12px', marginTop: '20px',
+  },
+  appGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px',
+  },
+  appCard: (connected) => ({
+    background: connected ? '#f0f7ff' : '#fff',
+    border: connected ? '2px solid #667eea' : '1px solid #ede8e1',
+    borderRadius: '12px', padding: '16px 12px', textAlign: 'center',
+    cursor: 'pointer', transition: 'all 0.15s',
+  }),
+  appIcon: { fontSize: '28px', marginBottom: '6px' },
+  appName: { fontSize: '12px', fontWeight: 600, color: '#1a1a1a', marginBottom: '6px' },
+  appStatus: (connected) => ({
+    fontSize: '10px', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase',
+    color: connected ? '#2e7d32' : '#999',
+  }),
+  // Modal
+  modal: {
+    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+    backdropFilter: 'blur(4px)',
+  },
+  modalBox: {
+    background: '#fff', border: '1px solid #ede8e1', borderRadius: '16px',
+    padding: '36px', width: '100%', maxWidth: '400px',
+    boxShadow: '0 32px 80px rgba(0,0,0,0.2)',
+  },
+  modalTitle: {
+    fontFamily: "'Playfair Display',serif", fontSize: '20px', fontWeight: 600, marginBottom: '6px',
+  },
+  modalSub: { color: '#888', fontSize: '13px', marginBottom: '24px' },
+  modalBtns: { display: 'flex', gap: '12px', marginTop: '20px' },
+  modalSaveBtn: {
+    flex: 1, background: 'linear-gradient(135deg,#667eea,#764ba2)', border: 'none',
+    borderRadius: '8px', color: '#fff', padding: '12px', cursor: 'pointer',
+    fontSize: '14px', fontWeight: 600,
+  },
+  modalCancelBtn: {
+    flex: 1, background: 'transparent', border: '1px solid #e5e0d8',
+    borderRadius: '8px', color: '#999', padding: '12px', cursor: 'pointer', fontSize: '14px',
+  },
+  modalDisconnectBtn: {
+    width: '100%', background: '#ffebee', border: 'none', borderRadius: '8px',
+    color: '#c62828', padding: '12px', cursor: 'pointer', fontSize: '14px',
+    fontWeight: 500, marginTop: '12px',
+  },
 };
 
 export default function PortalPreferences() {
@@ -77,6 +194,10 @@ export default function PortalPreferences() {
     timezone: '', gmail_app_password: '', has_gmail_app_password: false,
   });
   const [loyalty, setLoyalty] = useState([{ program: '', number: '' }]);
+  const [connectedApps, setConnectedApps] = useState({});
+  const [appModal, setAppModal] = useState(null); // { id, name, icon }
+  const [appCreds, setAppCreds] = useState({ username: '', password: '' });
+  const [appSaving, setAppSaving] = useState(false);
 
   useEffect(() => {
     customerApi.get('/api/customer/profile').then(r => {
@@ -86,6 +207,13 @@ export default function PortalPreferences() {
           setLoyalty(r.data.loyalty_numbers);
         }
       }
+    }).catch(() => {});
+
+    // Load connected apps
+    customerApi.get('/api/customer/apps').then(r => {
+      const map = {};
+      (r.data || []).forEach(a => { map[a.app_name] = true; });
+      setConnectedApps(map);
     }).catch(() => {});
 
     // Check calendar connection status
@@ -148,6 +276,38 @@ export default function PortalPreferences() {
     } finally { setCalendarLoading(false); }
   }
 
+  async function connectApp() {
+    if (!appCreds.username || !appCreds.password) return;
+    setAppSaving(true);
+    try {
+      await customerApi.post('/api/customer/apps', {
+        app_name: appModal.id,
+        username: appCreds.username,
+        password: appCreds.password,
+      });
+      setConnectedApps(prev => ({ ...prev, [appModal.id]: true }));
+      setAppModal(null);
+      setAppCreds({ username: '', password: '' });
+    } catch {
+      alert('Failed to connect app');
+    } finally { setAppSaving(false); }
+  }
+
+  async function disconnectApp(appId) {
+    try {
+      await customerApi.delete(`/api/customer/apps/${appId}`);
+      setConnectedApps(prev => { const n = { ...prev }; delete n[appId]; return n; });
+      setAppModal(null);
+    } catch {
+      alert('Failed to disconnect app');
+    }
+  }
+
+  function openAppModal(app) {
+    setAppCreds({ username: '', password: '' });
+    setAppModal(app);
+  }
+
   function F(key) {
     return { value: profile[key] || '', onChange: e => setProfile(p => ({ ...p, [key]: e.target.value })) };
   }
@@ -166,12 +326,12 @@ export default function PortalPreferences() {
 
       <div style={S.main}>
         <div style={S.infoBox}>
-          Every preference you set here is automatically synced to your AI assistant.
+          Every preference you set here is automatically synced to your Kova assistant.
           When you ask it to book a restaurant or flight, it already knows your dietary needs,
           loyalty numbers, and travel preferences.
         </div>
 
-        {saved && <div style={S.successBox}>Preferences saved and synced to your AI assistant</div>}
+        {saved && <div style={S.successBox}>Preferences saved and synced to your Kova assistant</div>}
 
         {/* Personal Information */}
         <div style={S.card}>
@@ -280,7 +440,7 @@ export default function PortalPreferences() {
         {/* Communication */}
         <div style={S.card}>
           <h3 style={S.sectionTitle}>Communication Preferences</h3>
-          <p style={S.sectionSub}>How your AI assistant should contact you</p>
+          <p style={S.sectionSub}>How Kova should contact you</p>
           <div style={S.grid2}>
             <div>
               <label style={S.label}>Preferred Contact Method</label>
@@ -356,12 +516,89 @@ export default function PortalPreferences() {
           </div>
         </div>
 
+        {/* Connected Apps */}
+        <div style={{ ...S.card, padding: '28px 28px 20px' }}>
+          <h3 style={S.sectionTitle}>Connected Apps</h3>
+          <p style={S.sectionSub}>
+            Connect your accounts so Kova can book, order, and manage things on your behalf.
+            Credentials are encrypted at rest.
+          </p>
+
+          {APP_CATEGORIES.map(cat => (
+            <div key={cat.category}>
+              <div style={S.appCategoryTitle}>{cat.category}</div>
+              <div style={S.appGrid}>
+                {cat.apps.map(app => (
+                  <div key={app.id} style={S.appCard(!!connectedApps[app.id])}
+                    onClick={() => openAppModal(app)}>
+                    <div style={S.appIcon}>{app.icon}</div>
+                    <div style={S.appName}>{app.name}</div>
+                    <div style={S.appStatus(!!connectedApps[app.id])}>
+                      {connectedApps[app.id] ? 'Connected' : 'Connect'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div style={S.saveRow}>
           <button style={S.saveBtn} onClick={saveProfile} disabled={saving}>
             {saving ? 'Saving...' : 'Save Preferences'}
           </button>
         </div>
       </div>
+
+      {/* Connect App Modal */}
+      {appModal && (
+        <div style={S.modal} onClick={e => e.target === e.currentTarget && setAppModal(null)}>
+          <div style={S.modalBox}>
+            <div style={{ fontSize: '36px', marginBottom: '8px' }}>{appModal.icon}</div>
+            <div style={S.modalTitle}>
+              {connectedApps[appModal.id] ? `${appModal.name} Connected` : `Connect ${appModal.name}`}
+            </div>
+            <div style={S.modalSub}>
+              {connectedApps[appModal.id]
+                ? 'Your credentials are securely stored. Kova will use them when needed.'
+                : 'Enter your login credentials. They will be encrypted and stored securely.'}
+            </div>
+
+            {!connectedApps[appModal.id] && (
+              <>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={S.label}>Username / Email</label>
+                  <input style={S.input} value={appCreds.username}
+                    onChange={e => setAppCreds(c => ({ ...c, username: e.target.value }))}
+                    placeholder={`Your ${appModal.name} username`} />
+                </div>
+                <div>
+                  <label style={S.label}>Password</label>
+                  <input style={S.input} type="password" value={appCreds.password}
+                    onChange={e => setAppCreds(c => ({ ...c, password: e.target.value }))}
+                    placeholder="Your password" />
+                </div>
+                <div style={S.modalBtns}>
+                  <button style={S.modalCancelBtn} onClick={() => setAppModal(null)}>Cancel</button>
+                  <button style={S.modalSaveBtn} onClick={connectApp} disabled={appSaving}>
+                    {appSaving ? 'Connecting...' : 'Connect'}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {connectedApps[appModal.id] && (
+              <>
+                <button style={S.modalDisconnectBtn} onClick={() => disconnectApp(appModal.id)}>
+                  Disconnect {appModal.name}
+                </button>
+                <button style={{ ...S.modalCancelBtn, width: '100%', marginTop: '8px' }}
+                  onClick={() => setAppModal(null)}>Close</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

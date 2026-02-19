@@ -46,7 +46,7 @@ export default function Privacy() {
         <span style={S.backLink} onClick={() => navigate(-1)}>← Back</span>
 
         <p style={S.p}>
-          This Privacy Policy describes how AutoBookAI ("we", "us", "our") collects, uses, and
+          This Privacy Policy describes how Kova ("we", "us", "our") collects, uses, and
           protects your personal information when you use our AI assistant platform ("Service").
         </p>
 
