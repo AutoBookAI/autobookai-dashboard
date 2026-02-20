@@ -713,7 +713,7 @@ export default function Landing() {
         } : {}),
       }}>
         <div style={L.navBrand} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <img src="/kova-logo.png" alt="Kova" style={L.navLogo} />
+          <img src="/kova-logo.svg" alt="Kova" style={L.navLogo} />
           Kova
         </div>
         <div style={L.navLinks}>

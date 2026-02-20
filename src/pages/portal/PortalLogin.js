@@ -145,7 +145,7 @@ export default function PortalLogin() {
   return (
     <div style={C.page}>
       <div style={C.card}>
-        <img src="/kova-logo.png" alt="Kova" style={C.logoImg} />
+        <img src="/kova-logo.svg" alt="Kova" style={C.logoImg} />
         <div style={C.title}>Kova</div>
         <div style={C.sub}>Sign in to manage your preferences and billing</div>
 

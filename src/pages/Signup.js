@@ -235,7 +235,7 @@ export default function Signup() {
     return (
       <div style={S.page}>
         <div style={S.card}>
-          <img src="/kova-logo.png" alt="Kova" style={S.logoImg} />
+          <img src="/kova-logo.svg" alt="Kova" style={S.logoImg} />
           <div style={S.title}>Get Your Kova Assistant</div>
           <div style={S.sub}>Step 1 of 2 — Create your account</div>
 
@@ -324,7 +324,7 @@ export default function Signup() {
   return (
     <div style={S.page}>
       <div style={S.cardWide}>
-        <img src="/kova-logo.png" alt="Kova" style={S.logoImg} />
+        <img src="/kova-logo.svg" alt="Kova" style={S.logoImg} />
         <div style={S.title}>Choose Your Kova Voice</div>
         <div style={S.sub}>Step 2 of 2 — Pick a voice for your assistant</div>
 

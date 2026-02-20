@@ -634,7 +634,7 @@ export default function Portal() {
       {showVoiceOnboarding && (
         <div style={S.voiceOverlay}>
           <div style={S.voiceModal}>
-            <img src="/kova-logo.png" alt="Kova" style={S.voiceLogoImg} />
+            <img src="/kova-logo.svg" alt="Kova" style={S.voiceLogoImg} />
             <div style={S.voiceTitle}>Welcome to Kova</div>
 
             {!voiceElevenlabsAvailable ? (
@@ -749,7 +749,7 @@ export default function Portal() {
       {/* Header */}
       <header style={S.header}>
         <div style={S.logoWrap}>
-          <img src="/kova-logo.png" alt="Kova" style={S.logoImg} />
+          <img src="/kova-logo.svg" alt="Kova" style={S.logoImg} />
           <span style={S.logoText}>Kova</span>
         </div>
         <div style={S.headerRight}>

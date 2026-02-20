@@ -777,7 +777,7 @@ export default function Dashboard() {
       {/* ── NAVBAR ────────────────────────────────────────────── */}
       <nav style={G.nav}>
         <div style={G.logoWrap}>
-          <img src="/kova-logo.png" alt="Kova" style={G.logoIcon} />
+          <img src="/kova-logo.svg" alt="Kova" style={G.logoIcon} />
           <div>
             <span style={G.logoText}>Kova Admin</span>
             <span style={G.logoSub}> Platform</span>

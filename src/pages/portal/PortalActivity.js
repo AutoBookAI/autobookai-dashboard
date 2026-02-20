@@ -77,7 +77,7 @@ export default function PortalActivity() {
     <div style={S.page}>
       <nav style={S.nav}>
         <button style={S.back} onClick={() => navigate('/portal')}>← Back</button>
-        <img src="/kova-logo.png" alt="Kova" style={S.navLogo} />
+        <img src="/kova-logo.svg" alt="Kova" style={S.navLogo} />
         <span style={S.navTitle}>Activity Log</span>
       </nav>
 
