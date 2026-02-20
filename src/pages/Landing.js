@@ -1,188 +1,827 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
 const L = {
-  page: { minHeight:'100vh', fontFamily:"'Inter',sans-serif", color:'#1a1a1a' },
+  // ── Global ──────────────────────────────────────────────────────────────
+  page: {
+    minHeight: '100vh',
+    fontFamily: "'Inter', sans-serif",
+    color: '#e0e0e0',
+    background: '#1a1a2e',
+    overflowX: 'hidden',
+  },
 
-  // ── Hero ────────────────────────────────────────────────────────────────────
+  // ── Hero ────────────────────────────────────────────────────────────────
   hero: {
-    background:'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-    padding:'60px 20px 80px', textAlign:'center', color:'#fff',
+    position: 'relative',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    padding: '120px 24px 100px',
+    overflow: 'hidden',
+  },
+  heroInner: {
+    position: 'relative',
+    zIndex: 2,
+    maxWidth: '860px',
+    margin: '0 auto',
   },
   heroTag: {
-    display:'inline-block', background:'rgba(102,126,234,0.2)', border:'1px solid rgba(102,126,234,0.4)',
-    borderRadius:'20px', padding:'6px 16px', fontSize:'12px', fontWeight:600,
-    letterSpacing:'1px', color:'#a0b4f7', marginBottom:'24px', textTransform:'uppercase',
+    display: 'inline-block',
+    background: 'rgba(102,126,234,0.12)',
+    border: '1px solid rgba(102,126,234,0.3)',
+    borderRadius: '40px',
+    padding: '8px 22px',
+    fontSize: '13px',
+    fontWeight: 600,
+    letterSpacing: '1.5px',
+    color: '#a0b4f7',
+    marginBottom: '32px',
+    textTransform: 'uppercase',
+    backdropFilter: 'blur(10px)',
   },
   heroH1: {
-    fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:'clamp(28px, 5vw, 52px)',
-    lineHeight:1.15, maxWidth:'700px', margin:'0 auto 20px', letterSpacing:'-0.5px',
+    fontFamily: "'Playfair Display', serif",
+    fontWeight: 700,
+    fontSize: 'clamp(36px, 6vw, 72px)',
+    lineHeight: 1.08,
+    margin: '0 auto 24px',
+    letterSpacing: '-1.5px',
+    color: '#ffffff',
+    background: 'linear-gradient(135deg, #ffffff 0%, #a0b4f7 50%, #c4b5fd 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
   },
   heroSub: {
-    fontSize:'18px', lineHeight:1.6, color:'rgba(255,255,255,0.6)',
-    maxWidth:'560px', margin:'0 auto 40px',
+    fontSize: 'clamp(16px, 2vw, 20px)',
+    lineHeight: 1.7,
+    color: 'rgba(255,255,255,0.55)',
+    maxWidth: '600px',
+    margin: '0 auto 48px',
+    fontWeight: 400,
+  },
+  heroBtnRow: {
+    display: 'flex',
+    gap: '16px',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   heroCta: {
-    display:'inline-block', background:'linear-gradient(135deg,#667eea,#764ba2)',
-    border:'none', borderRadius:'10px', color:'#fff', padding:'16px 40px',
-    fontSize:'16px', fontWeight:600, cursor:'pointer', textDecoration:'none',
-    boxShadow:'0 8px 32px rgba(102,126,234,0.4)', transition:'transform 0.15s',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    border: 'none',
+    borderRadius: '14px',
+    color: '#fff',
+    padding: '18px 42px',
+    fontSize: '16px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    boxShadow: '0 8px 40px rgba(102,126,234,0.45), inset 0 1px 0 rgba(255,255,255,0.15)',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    letterSpacing: '0.3px',
+  },
+  heroCtaSecondary: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: '14px',
+    color: '#fff',
+    padding: '18px 42px',
+    fontSize: '16px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    backdropFilter: 'blur(12px)',
+    transition: 'transform 0.2s ease, background 0.2s ease, border-color 0.2s ease',
+    letterSpacing: '0.3px',
   },
   heroPrice: {
-    marginTop:'16px', fontSize:'14px', color:'rgba(255,255,255,0.4)',
+    marginTop: '28px',
+    fontSize: '14px',
+    color: 'rgba(255,255,255,0.3)',
+    letterSpacing: '0.5px',
+  },
+  particle: {
+    position: 'absolute',
+    borderRadius: '50%',
+    pointerEvents: 'none',
   },
 
-  // ── How it works ──────────────────────────────────────────────────────────
-  section: { padding:'60px 20px', maxWidth:'1000px', margin:'0 auto' },
+  // ── Nav bar (floating) ──────────────────────────────────────────────────
+  nav: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '18px 40px',
+    backdropFilter: 'blur(20px)',
+    background: 'rgba(26,26,46,0.7)',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
+  },
+  navBrand: {
+    fontFamily: "'Playfair Display', serif",
+    fontSize: '26px',
+    fontWeight: 700,
+    color: '#fff',
+    letterSpacing: '-0.5px',
+    cursor: 'pointer',
+  },
+  navLinks: {
+    display: 'flex',
+    gap: '32px',
+    alignItems: 'center',
+  },
+  navLink: {
+    color: 'rgba(255,255,255,0.55)',
+    fontSize: '14px',
+    fontWeight: 500,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    transition: 'color 0.2s ease',
+    letterSpacing: '0.3px',
+  },
+  navCta: {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    border: 'none',
+    borderRadius: '10px',
+    color: '#fff',
+    padding: '10px 24px',
+    fontSize: '14px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'transform 0.15s ease',
+    letterSpacing: '0.3px',
+  },
+
+  // ── Section shared ──────────────────────────────────────────────────────
+  section: {
+    padding: '120px 24px',
+    maxWidth: '1200px',
+    margin: '0 auto',
+  },
+  sectionLabel: {
+    display: 'inline-block',
+    background: 'rgba(102,126,234,0.12)',
+    border: '1px solid rgba(102,126,234,0.25)',
+    borderRadius: '40px',
+    padding: '6px 18px',
+    fontSize: '12px',
+    fontWeight: 600,
+    letterSpacing: '1.5px',
+    color: '#a0b4f7',
+    marginBottom: '20px',
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
   sectionTitle: {
-    fontFamily:"'Playfair Display',serif", fontWeight:600, fontSize:'32px',
-    textAlign:'center', marginBottom:'12px',
+    fontFamily: "'Playfair Display', serif",
+    fontWeight: 700,
+    fontSize: 'clamp(28px, 4vw, 48px)',
+    textAlign: 'center',
+    marginBottom: '16px',
+    color: '#ffffff',
+    letterSpacing: '-0.5px',
+    lineHeight: 1.15,
   },
   sectionSub: {
-    textAlign:'center', color:'#888', fontSize:'16px', marginBottom:'56px', maxWidth:'560px', margin:'0 auto 56px',
+    textAlign: 'center',
+    color: 'rgba(255,255,255,0.45)',
+    fontSize: 'clamp(15px, 1.5vw, 18px)',
+    marginBottom: '72px',
+    maxWidth: '600px',
+    margin: '0 auto 72px',
+    lineHeight: 1.6,
   },
-  stepsGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:'40px' },
-  stepCard: { textAlign:'center' },
+
+  // ── How it Works ────────────────────────────────────────────────────────
+  stepsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '48px',
+    position: 'relative',
+  },
+  stepCard: {
+    textAlign: 'center',
+    padding: '40px 28px',
+    borderRadius: '20px',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    backdropFilter: 'blur(12px)',
+    transition: 'transform 0.3s ease, border-color 0.3s ease',
+  },
   stepNum: {
-    width:'48px', height:'48px', borderRadius:'50%',
-    background:'linear-gradient(135deg,#667eea,#764ba2)', color:'#fff',
-    display:'inline-flex', alignItems:'center', justifyContent:'center',
-    fontSize:'20px', fontWeight:700, marginBottom:'16px',
+    width: '56px',
+    height: '56px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: '#fff',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '22px',
+    fontWeight: 700,
+    marginBottom: '24px',
+    boxShadow: '0 8px 32px rgba(102,126,234,0.35)',
   },
-  stepTitle: { fontWeight:600, fontSize:'16px', marginBottom:'8px' },
-  stepDesc: { color:'#888', fontSize:'14px', lineHeight:1.6 },
+  stepTitle: {
+    fontFamily: "'Playfair Display', serif",
+    fontWeight: 600,
+    fontSize: '20px',
+    marginBottom: '12px',
+    color: '#fff',
+  },
+  stepDesc: {
+    color: 'rgba(255,255,255,0.45)',
+    fontSize: '15px',
+    lineHeight: 1.7,
+  },
 
-  // ── Features ──────────────────────────────────────────────────────────────
-  featBg: { background:'#f8f5f0', padding:'60px 20px' },
-  featGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:'24px', maxWidth:'900px', margin:'0 auto' },
+  // ── Features ────────────────────────────────────────────────────────────
+  featBg: {
+    background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%)',
+    padding: '120px 24px',
+    position: 'relative',
+  },
+  featGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+    gap: '24px',
+    maxWidth: '1100px',
+    margin: '0 auto',
+  },
   featCard: {
-    background:'#fff', border:'1px solid #ede8e1', borderRadius:'12px',
-    padding:'28px 32px', display:'flex', gap:'16px', alignItems:'flex-start',
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '20px',
+    padding: '36px 32px',
+    display: 'flex',
+    gap: '20px',
+    alignItems: 'flex-start',
+    backdropFilter: 'blur(12px)',
+    transition: 'transform 0.3s ease, border-color 0.3s ease, background 0.3s ease',
+    cursor: 'default',
   },
-  featIcon: { fontSize:'28px', flexShrink:0 },
-  featTitle: { fontWeight:600, fontSize:'15px', marginBottom:'6px' },
-  featDesc: { color:'#888', fontSize:'13px', lineHeight:1.5 },
+  featIconWrap: {
+    width: '52px',
+    height: '52px',
+    borderRadius: '14px',
+    background: 'rgba(102,126,234,0.12)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '26px',
+    flexShrink: 0,
+  },
+  featTitle: {
+    fontWeight: 600,
+    fontSize: '17px',
+    marginBottom: '8px',
+    color: '#fff',
+  },
+  featDesc: {
+    color: 'rgba(255,255,255,0.45)',
+    fontSize: '14px',
+    lineHeight: 1.65,
+  },
 
-  // ── Pricing ───────────────────────────────────────────────────────────────
-  priceBg: { padding:'60px 20px', textAlign:'center' },
+  // ── Social Proof ────────────────────────────────────────────────────────
+  testimonialGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '28px',
+    maxWidth: '1100px',
+    margin: '0 auto',
+  },
+  testimonialCard: {
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '20px',
+    padding: '36px 32px',
+    backdropFilter: 'blur(12px)',
+    transition: 'transform 0.3s ease, border-color 0.3s ease',
+  },
+  testimonialStars: {
+    fontSize: '18px',
+    marginBottom: '16px',
+    letterSpacing: '2px',
+    color: '#f5c542',
+  },
+  testimonialQuote: {
+    fontSize: '15px',
+    lineHeight: 1.75,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: '24px',
+    fontStyle: 'italic',
+  },
+  testimonialAuthor: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px',
+  },
+  testimonialAvatar: {
+    width: '44px',
+    height: '44px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontWeight: 700,
+    fontSize: '16px',
+  },
+  testimonialName: {
+    fontWeight: 600,
+    fontSize: '15px',
+    color: '#fff',
+  },
+  testimonialRole: {
+    fontSize: '13px',
+    color: 'rgba(255,255,255,0.4)',
+    marginTop: '2px',
+  },
+
+  // ── Pricing ─────────────────────────────────────────────────────────────
+  priceBg: {
+    background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%)',
+    padding: '120px 24px',
+    textAlign: 'center',
+  },
   priceGrid: {
-    display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))',
-    gap:'24px', maxWidth:'780px', margin:'0 auto',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+    gap: '32px',
+    maxWidth: '820px',
+    margin: '0 auto',
   },
   priceCard: {
-    background:'#fff', border:'2px solid #e0d8f0', borderRadius:'20px',
-    padding:'40px 32px',
-    boxShadow:'0 16px 48px rgba(0,0,0,0.08)',
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '24px',
+    padding: '48px 36px',
+    backdropFilter: 'blur(16px)',
+    textAlign: 'left',
+    transition: 'transform 0.3s ease, border-color 0.3s ease',
   },
   priceCardPro: {
-    background:'#fff', border:'2px solid #764ba2', borderRadius:'20px',
-    padding:'40px 32px', position:'relative',
-    boxShadow:'0 16px 48px rgba(118,75,162,0.15)',
+    background: 'rgba(102,126,234,0.08)',
+    border: '2px solid rgba(102,126,234,0.35)',
+    borderRadius: '24px',
+    padding: '48px 36px',
+    position: 'relative',
+    backdropFilter: 'blur(16px)',
+    textAlign: 'left',
+    boxShadow: '0 16px 64px rgba(102,126,234,0.15)',
+    transition: 'transform 0.3s ease, border-color 0.3s ease',
   },
   pricePopular: {
-    position:'absolute', top:'-14px', left:'50%', transform:'translateX(-50%)',
-    background:'linear-gradient(135deg,#667eea,#764ba2)', color:'#fff',
-    fontSize:'11px', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase',
-    padding:'5px 18px', borderRadius:'20px',
+    position: 'absolute',
+    top: '-14px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: '#fff',
+    fontSize: '11px',
+    fontWeight: 700,
+    letterSpacing: '1.5px',
+    textTransform: 'uppercase',
+    padding: '6px 22px',
+    borderRadius: '40px',
+    boxShadow: '0 4px 16px rgba(102,126,234,0.4)',
   },
-  pricePlanName: { fontWeight:600, fontSize:'18px', marginBottom:'8px', color:'#1a1a1a' },
+  pricePlanName: {
+    fontWeight: 600,
+    fontSize: '16px',
+    marginBottom: '8px',
+    color: 'rgba(255,255,255,0.55)',
+    letterSpacing: '0.5px',
+    textTransform: 'uppercase',
+  },
   priceAmount: {
-    fontFamily:"'Playfair Display',serif", fontSize:'48px', fontWeight:700,
-    color:'#1a1a1a', lineHeight:1,
+    fontFamily: "'Playfair Display', serif",
+    fontSize: 'clamp(40px, 5vw, 56px)',
+    fontWeight: 700,
+    color: '#fff',
+    lineHeight: 1,
   },
-  pricePer: { color:'#888', fontSize:'16px', marginBottom:'24px' },
+  pricePer: {
+    color: 'rgba(255,255,255,0.35)',
+    fontSize: '16px',
+    marginBottom: '32px',
+    marginTop: '4px',
+  },
+  priceDivider: {
+    height: '1px',
+    background: 'rgba(255,255,255,0.08)',
+    margin: '0 0 24px',
+  },
   priceFeature: {
-    display:'flex', alignItems:'center', gap:'10px',
-    fontSize:'14px', color:'#444', padding:'7px 0', textAlign:'left',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    fontSize: '14px',
+    color: 'rgba(255,255,255,0.65)',
+    padding: '8px 0',
+    textAlign: 'left',
   },
-  priceCheck: { color:'#667eea', fontWeight:700, fontSize:'16px', flexShrink:0 },
+  priceCheck: {
+    color: '#667eea',
+    fontWeight: 700,
+    fontSize: '16px',
+    flexShrink: 0,
+  },
   priceCta: {
-    display:'inline-block', width:'100%', background:'linear-gradient(135deg,#667eea,#764ba2)',
-    border:'none', borderRadius:'10px', color:'#fff', padding:'14px',
-    fontSize:'15px', fontWeight:600, cursor:'pointer', marginTop:'24px',
-    boxShadow:'0 8px 32px rgba(102,126,234,0.35)', textDecoration:'none', textAlign:'center',
+    display: 'block',
+    width: '100%',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    border: 'none',
+    borderRadius: '14px',
+    color: '#fff',
+    padding: '16px',
+    fontSize: '15px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    marginTop: '32px',
+    boxShadow: '0 8px 32px rgba(102,126,234,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
+    textDecoration: 'none',
+    textAlign: 'center',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    letterSpacing: '0.3px',
   },
   priceCtaOutline: {
-    display:'inline-block', width:'100%', background:'transparent',
-    border:'2px solid #667eea', borderRadius:'10px', color:'#667eea', padding:'12px',
-    fontSize:'15px', fontWeight:600, cursor:'pointer', marginTop:'24px',
-    textDecoration:'none', textAlign:'center',
+    display: 'block',
+    width: '100%',
+    background: 'rgba(102,126,234,0.08)',
+    border: '1px solid rgba(102,126,234,0.35)',
+    borderRadius: '14px',
+    color: '#a0b4f7',
+    padding: '16px',
+    fontSize: '15px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    marginTop: '32px',
+    textDecoration: 'none',
+    textAlign: 'center',
+    transition: 'transform 0.2s ease, background 0.2s ease, border-color 0.2s ease',
+    letterSpacing: '0.3px',
   },
 
-  // ── Footer ────────────────────────────────────────────────────────────────
+  // ── FAQ ─────────────────────────────────────────────────────────────────
+  faqWrap: {
+    maxWidth: '720px',
+    margin: '0 auto',
+  },
+  faqItem: {
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
+  },
+  faqQuestion: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    background: 'transparent',
+    border: 'none',
+    color: '#fff',
+    padding: '24px 0',
+    fontSize: '17px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    textAlign: 'left',
+    fontFamily: "'Inter', sans-serif",
+    transition: 'color 0.2s ease',
+  },
+  faqIcon: {
+    fontSize: '22px',
+    color: '#667eea',
+    fontWeight: 300,
+    flexShrink: 0,
+    transition: 'transform 0.3s ease',
+    marginLeft: '16px',
+  },
+  faqAnswer: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: '15px',
+    lineHeight: 1.75,
+    paddingBottom: '24px',
+    paddingRight: '40px',
+  },
+
+  // ── Footer ──────────────────────────────────────────────────────────────
   footer: {
-    background:'#1a1a2e', padding:'32px 40px', textAlign:'center',
-    color:'rgba(255,255,255,0.3)', fontSize:'13px',
+    borderTop: '1px solid rgba(255,255,255,0.06)',
+    padding: '48px 40px',
+    textAlign: 'center',
+    color: 'rgba(255,255,255,0.25)',
+    fontSize: '13px',
+    background: 'rgba(15,15,30,0.5)',
+  },
+  footerBrand: {
+    fontFamily: "'Playfair Display', serif",
+    fontSize: '22px',
+    fontWeight: 700,
+    color: '#fff',
+    marginBottom: '20px',
+  },
+  footerLinks: {
+    display: 'flex',
+    gap: '28px',
+    justifyContent: 'center',
+    marginBottom: '24px',
+    flexWrap: 'wrap',
+  },
+  footerLink: {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: '14px',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    transition: 'color 0.2s ease',
   },
 };
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════════════════════════════ */
 const FEATURES = [
-  { icon:'🔍', title:'Web Search with Citations', desc:'Ask anything — your AI searches the web and always cites its sources with links.' },
-  { icon:'📧', title:'Send Emails', desc:'Tell your AI to email anyone. It composes and sends on your behalf.' },
-  { icon:'📞', title:'Make Phone Calls', desc:'Kova can call restaurants, airlines, or anyone else to handle things for you.' },
-  { icon:'🍽️', title:'Book Restaurants', desc:'Just say where and when. Kova books on OpenTable, Resy, or calls directly.' },
-  { icon:'📅', title:'Calendar Management', desc:'Schedule appointments, set reminders, and manage your calendar hands-free.' },
-  { icon:'🌐', title:'Browse & Book Anything', desc:'Kova uses browser automation to fill forms, sign up, and book on any website.' },
+  { icon: '\uD83D\uDCDE', title: 'Phone Calls', desc: 'Kova calls restaurants, services, and businesses on your behalf -- so you never have to sit on hold again.' },
+  { icon: '\u2709\uFE0F', title: 'Email Management', desc: 'Sends and drafts emails for you. Just tell Kova what to say and who to send it to.' },
+  { icon: '\uD83D\uDD0D', title: 'Web Research', desc: 'Finds information, prices, reviews, and availability across the web in seconds.' },
+  { icon: '\uD83D\uDCC5', title: 'Calendar Management', desc: 'Schedules events, sets reminders, and keeps your calendar organized hands-free.' },
+  { icon: '\uD83C\uDF7D\uFE0F', title: 'Restaurant Bookings', desc: 'Reserves tables at your favorite spots via OpenTable, Resy, or by calling directly.' },
+  { icon: '\u2708\uFE0F', title: 'Travel Planning', desc: 'Searches flights, books hotels, and builds full itineraries tailored to your preferences.' },
+];
+
+const STEPS = [
+  { num: '1', title: 'Sign Up', desc: 'Create your account and pick the plan that fits your lifestyle. Takes less than 2 minutes.' },
+  { num: '2', title: 'Connect WhatsApp', desc: 'We assign you a dedicated Kova number. Just text it on WhatsApp to activate your assistant.' },
+  { num: '3', title: 'Kova Handles Everything', desc: 'Make requests in plain language. Kova calls, books, emails, and researches -- all for you.' },
+];
+
+const TESTIMONIALS = [
+  {
+    quote: "Kova saved me hours every week. I just text what I need and it handles restaurant reservations, emails, even phone calls. It feels like having a real personal assistant.",
+    name: 'Sarah M.',
+    role: 'Marketing Director',
+    initials: 'SM',
+  },
+  {
+    quote: "I was skeptical at first, but after Kova booked my entire vacation -- flights, hotels, dinner reservations -- I was completely sold. The Pro plan is worth every penny.",
+    name: 'James R.',
+    role: 'Startup Founder',
+    initials: 'JR',
+  },
+  {
+    quote: "As someone who gets 200+ emails a day, having Kova draft replies and manage my calendar has been a game-changer. I actually have free time now.",
+    name: 'Priya K.',
+    role: 'Investment Analyst',
+    initials: 'PK',
+  },
 ];
 
 const STANDARD_FEATURES = [
-  'Kova AI assistant 24/7 on WhatsApp',
   '30 messages per day',
-  'Restaurant & travel bookings',
-  'Send emails & make calls on your behalf',
-  'Web search with cited sources',
+  'AI phone calls on your behalf',
+  'Email sending & drafting',
+  'Web search & research',
   'Calendar management',
-  'Remembers all your preferences',
+  'Preference memory',
   'Dedicated WhatsApp number',
 ];
 
 const PRO_FEATURES = [
-  'Everything in Standard',
   '100 messages per day',
-  'Priority response times',
-  'Advanced browser automation',
+  'Everything in Standard',
+  'Browser automation',
+  'Priority support',
+  'Connected apps',
+  'Advanced itineraries',
   'Dedicated WhatsApp number',
-  'Full preference memory',
 ];
 
+const FAQS = [
+  {
+    q: 'What is Kova?',
+    a: 'Kova is your AI personal assistant that lives on WhatsApp. You text it requests in plain language and it handles them for you -- making phone calls, sending emails, booking restaurants, managing your calendar, and much more.',
+  },
+  {
+    q: 'How does it work?',
+    a: 'After signing up, you receive a dedicated WhatsApp number for your Kova assistant. Simply text it like you would a real assistant: "Book a table for 2 at Nobu tonight at 8pm" or "Email my accountant about the Q4 report." Kova takes action immediately.',
+  },
+  {
+    q: 'Is my data secure?',
+    a: 'Absolutely. All communications are encrypted end-to-end. We never sell your data and all personal information is stored securely. You can delete your data at any time from your portal.',
+  },
+  {
+    q: 'Can I cancel anytime?',
+    a: 'Yes, there are no contracts or cancellation fees. You can cancel your subscription at any time from your customer portal, and you will retain access until the end of your billing period.',
+  },
+  {
+    q: 'What can Kova do?',
+    a: 'Kova can make phone calls, send emails, search the web, book restaurants, plan travel, manage your calendar, set reminders, and more. Pro plan members also get browser automation for filling out forms and booking on any website.',
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PARTICLES (floating decorations for hero)
+   ═══════════════════════════════════════════════════════════════════════════ */
+const PARTICLES = [
+  { size: 6, x: '10%', y: '20%', delay: 0, dur: 6 },
+  { size: 4, x: '85%', y: '15%', delay: 1, dur: 8 },
+  { size: 8, x: '70%', y: '70%', delay: 2, dur: 7 },
+  { size: 5, x: '20%', y: '75%', delay: 0.5, dur: 9 },
+  { size: 3, x: '50%', y: '10%', delay: 3, dur: 6 },
+  { size: 7, x: '90%', y: '50%', delay: 1.5, dur: 8 },
+  { size: 4, x: '5%', y: '50%', delay: 2.5, dur: 7 },
+  { size: 6, x: '40%', y: '85%', delay: 0.8, dur: 9 },
+  { size: 3, x: '60%', y: '30%', delay: 3.5, dur: 6 },
+  { size: 5, x: '30%', y: '40%', delay: 1.2, dur: 8 },
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT
+   ═══════════════════════════════════════════════════════════════════════════ */
 export default function Landing() {
   const navigate = useNavigate();
+  const [openFaq, setOpenFaq] = useState(null);
+  const [hoveredFeature, setHoveredFeature] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div style={L.page}>
-      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <div style={L.hero}>
-        <div style={L.heroTag}>Your personal AI on WhatsApp</div>
-        <h1 style={L.heroH1}>Meet Kova — your AI that actually does things</h1>
-        <p style={L.heroSub}>
-          Book restaurants, send emails, make phone calls, manage your calendar — all through
-          a simple WhatsApp message. Powered by OpenClaw.
-        </p>
-        <button style={L.heroCta} onClick={() => navigate('/signup')}>
-          Get Started →
-        </button>
-        <div style={L.heroPrice}>Starting at $49.99/month — cancel anytime</div>
-        <div style={{ marginTop:'20px' }}>
-          <span
-            style={{ color:'rgba(255,255,255,0.4)', fontSize:'13px', cursor:'pointer', textDecoration:'underline' }}
-            onClick={() => navigate('/portal/login')}
-          >
-            Already a member? Sign in
-          </span>
+
+      {/* ── Keyframe animations (injected once) ────────────────────────────── */}
+      <style>{`
+        @keyframes heroGradient {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); opacity: 0.4; }
+          50%      { transform: translateY(-20px); opacity: 0.8; }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; }
+          50%      { opacity: 0.6; }
+        }
+      `}</style>
+
+      {/* ── Navbar ─────────────────────────────────────────────────────────── */}
+      <nav style={{
+        ...L.nav,
+        ...(scrolled ? {
+          background: 'rgba(26,26,46,0.92)',
+          boxShadow: '0 4px 30px rgba(0,0,0,0.3)',
+        } : {}),
+      }}>
+        <div style={L.navBrand} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          Kova
+        </div>
+        <div style={L.navLinks}>
+          <span style={L.navLink} onClick={() => scrollTo('features')}>Features</span>
+          <span style={L.navLink} onClick={() => scrollTo('pricing')}>Pricing</span>
+          <span style={L.navLink} onClick={() => scrollTo('faq')}>FAQ</span>
+          <span style={L.navLink} onClick={() => navigate('/portal/login')}>Sign In</span>
+          <button style={L.navCta} onClick={() => navigate('/signup')}>
+            Get Started
+          </button>
+        </div>
+      </nav>
+
+      {/* ── Hero ───────────────────────────────────────────────────────────── */}
+      <div style={{
+        ...L.hero,
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 35%, #0f3460 65%, #1a1a2e 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'heroGradient 12s ease infinite',
+      }}>
+        {/* Floating particles */}
+        {PARTICLES.map((p, i) => (
+          <div
+            key={i}
+            style={{
+              ...L.particle,
+              width: p.size,
+              height: p.size,
+              left: p.x,
+              top: p.y,
+              background: i % 2 === 0
+                ? 'rgba(102,126,234,0.5)'
+                : 'rgba(118,75,162,0.5)',
+              animation: `float ${p.dur}s ease-in-out ${p.delay}s infinite`,
+              boxShadow: `0 0 ${p.size * 3}px ${
+                i % 2 === 0
+                  ? 'rgba(102,126,234,0.3)'
+                  : 'rgba(118,75,162,0.3)'
+              }`,
+            }}
+          />
+        ))}
+
+        {/* Large ambient glow circles */}
+        <div style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(102,126,234,0.08) 0%, transparent 70%)',
+          top: '-200px',
+          right: '-100px',
+          pointerEvents: 'none',
+          animation: 'pulse 6s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute',
+          width: '500px',
+          height: '500px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(118,75,162,0.08) 0%, transparent 70%)',
+          bottom: '-150px',
+          left: '-100px',
+          pointerEvents: 'none',
+          animation: 'pulse 8s ease-in-out 2s infinite',
+        }} />
+
+        <div style={{
+          ...L.heroInner,
+          animation: 'fadeInUp 0.8s ease-out',
+        }}>
+          <div style={L.heroTag}>AI-Powered Personal Assistant</div>
+          <h1 style={L.heroH1}>Your AI Personal Assistant</h1>
+          <p style={L.heroSub}>
+            Meet Kova -- the WhatsApp-powered AI that makes phone calls, books restaurants,
+            sends emails, and manages your calendar. Just text what you need.
+          </p>
+          <div style={L.heroBtnRow}>
+            <button
+              style={L.heroCta}
+              onClick={() => navigate('/signup')}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 12px 48px rgba(102,126,234,0.55), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
+              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 8px 40px rgba(102,126,234,0.45), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
+            >
+              Get Started
+              <span style={{ fontSize: '18px' }}>&rarr;</span>
+            </button>
+            <button
+              style={L.heroCtaSecondary}
+              onClick={() => navigate('/portal/login')}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.background = 'rgba(255,255,255,0.1)'; e.target.style.borderColor = 'rgba(255,255,255,0.25)'; }}
+              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+            >
+              Sign In
+            </button>
+          </div>
+          <div style={L.heroPrice}>Starting at $49.99/month &middot; Cancel anytime</div>
         </div>
       </div>
 
-      {/* ── How it works ──────────────────────────────────────────────────── */}
-      <div style={L.section}>
+      {/* ── How It Works ───────────────────────────────────────────────────── */}
+      <div style={L.section} id="how-it-works">
+        <div style={{ textAlign: 'center' }}>
+          <div style={L.sectionLabel}>Simple Setup</div>
+        </div>
         <h2 style={L.sectionTitle}>How It Works</h2>
-        <p style={L.sectionSub}>Three steps to your own personal Kova assistant</p>
+        <p style={L.sectionSub}>
+          Get your own AI personal assistant in three easy steps
+        </p>
         <div style={L.stepsGrid}>
-          {[
-            { num:'1', title:'Sign up & pay', desc:'Create your account and subscribe. Takes 2 minutes.' },
-            { num:'2', title:'Get your WhatsApp number', desc:'We assign you a dedicated WhatsApp number connected to your personal AI.' },
-            { num:'3', title:'Start messaging', desc:'Text your AI anything — "Book dinner for 2 at 7pm" — and it handles the rest.' },
-          ].map(s => (
-            <div key={s.num} style={L.stepCard}>
+          {STEPS.map((s) => (
+            <div
+              key={s.num}
+              style={L.stepCard}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.25)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
+            >
               <div style={L.stepNum}>{s.num}</div>
               <div style={L.stepTitle}>{s.title}</div>
               <div style={L.stepDesc}>{s.desc}</div>
@@ -191,14 +830,31 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── Features ─────────────────────────────────────────────────────── */}
-      <div style={L.featBg}>
-        <h2 style={{ ...L.sectionTitle, marginBottom:'12px' }}>What Your AI Can Do</h2>
-        <p style={L.sectionSub}>It's like having a personal assistant in your pocket</p>
+      {/* ── Features ───────────────────────────────────────────────────────── */}
+      <div style={L.featBg} id="features">
+        <div style={{ textAlign: 'center' }}>
+          <div style={L.sectionLabel}>Capabilities</div>
+        </div>
+        <h2 style={{ ...L.sectionTitle, marginBottom: '16px' }}>What Kova Can Do</h2>
+        <p style={L.sectionSub}>
+          A full-service AI assistant that handles the tasks you do not want to
+        </p>
         <div style={L.featGrid}>
-          {FEATURES.map(f => (
-            <div key={f.title} style={L.featCard}>
-              <div style={L.featIcon}>{f.icon}</div>
+          {FEATURES.map((f, i) => (
+            <div
+              key={f.title}
+              style={{
+                ...L.featCard,
+                ...(hoveredFeature === i ? {
+                  transform: 'translateY(-4px)',
+                  borderColor: 'rgba(102,126,234,0.3)',
+                  background: 'rgba(255,255,255,0.06)',
+                } : {}),
+              }}
+              onMouseEnter={() => setHoveredFeature(i)}
+              onMouseLeave={() => setHoveredFeature(null)}
+            >
+              <div style={L.featIconWrap}>{f.icon}</div>
               <div>
                 <div style={L.featTitle}>{f.title}</div>
                 <div style={L.featDesc}>{f.desc}</div>
@@ -208,52 +864,168 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── Pricing ──────────────────────────────────────────────────────── */}
-      <div style={L.priceBg}>
-        <h2 style={{ ...L.sectionTitle, marginBottom:'12px' }}>Simple Pricing</h2>
-        <p style={L.sectionSub}>Two plans, everything included. No hidden fees.</p>
+      {/* ── Social Proof ───────────────────────────────────────────────────── */}
+      <div style={L.section} id="testimonials">
+        <div style={{ textAlign: 'center' }}>
+          <div style={L.sectionLabel}>Testimonials</div>
+        </div>
+        <h2 style={L.sectionTitle}>Loved by Busy Professionals</h2>
+        <p style={L.sectionSub}>
+          See what our members are saying about their Kova experience
+        </p>
+        <div style={L.testimonialGrid}>
+          {TESTIMONIALS.map((t) => (
+            <div
+              key={t.name}
+              style={L.testimonialCard}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.25)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+            >
+              <div style={L.testimonialStars}>
+                {'\u2605\u2605\u2605\u2605\u2605'}
+              </div>
+              <div style={L.testimonialQuote}>"{t.quote}"</div>
+              <div style={L.testimonialAuthor}>
+                <div style={L.testimonialAvatar}>{t.initials}</div>
+                <div>
+                  <div style={L.testimonialName}>{t.name}</div>
+                  <div style={L.testimonialRole}>{t.role}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Pricing ────────────────────────────────────────────────────────── */}
+      <div style={L.priceBg} id="pricing">
+        <div style={{ textAlign: 'center' }}>
+          <div style={L.sectionLabel}>Pricing</div>
+        </div>
+        <h2 style={{ ...L.sectionTitle, marginBottom: '16px' }}>Simple, Transparent Pricing</h2>
+        <p style={L.sectionSub}>
+          Two plans, no hidden fees. Choose the one that fits your lifestyle.
+        </p>
         <div style={L.priceGrid}>
-          <div style={L.priceCard}>
+          {/* Standard */}
+          <div
+            style={L.priceCard}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+          >
             <div style={L.pricePlanName}>Standard</div>
             <div style={L.priceAmount}>$49.99</div>
             <div style={L.pricePer}>per month</div>
-            {STANDARD_FEATURES.map(f => (
+            <div style={L.priceDivider} />
+            {STANDARD_FEATURES.map((f) => (
               <div key={f} style={L.priceFeature}>
-                <span style={L.priceCheck}>✓</span>
+                <span style={L.priceCheck}>{'\u2713'}</span>
                 <span>{f}</span>
               </div>
             ))}
-            <button style={L.priceCtaOutline} onClick={() => navigate('/signup')}>
-              Get Started →
+            <button
+              style={L.priceCtaOutline}
+              onClick={() => navigate('/signup?plan=assistant')}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.background = 'rgba(102,126,234,0.15)'; e.target.style.borderColor = 'rgba(102,126,234,0.5)'; }}
+              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.background = 'rgba(102,126,234,0.08)'; e.target.style.borderColor = 'rgba(102,126,234,0.35)'; }}
+            >
+              Get Started
             </button>
           </div>
-          <div style={L.priceCardPro}>
+
+          {/* Pro */}
+          <div
+            style={L.priceCardPro}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.5)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.35)'; }}
+          >
             <div style={L.pricePopular}>Most Popular</div>
             <div style={L.pricePlanName}>Pro</div>
             <div style={L.priceAmount}>$149.99</div>
             <div style={L.pricePer}>per month</div>
-            {PRO_FEATURES.map(f => (
+            <div style={L.priceDivider} />
+            {PRO_FEATURES.map((f) => (
               <div key={f} style={L.priceFeature}>
-                <span style={L.priceCheck}>✓</span>
+                <span style={L.priceCheck}>{'\u2713'}</span>
                 <span>{f}</span>
               </div>
             ))}
-            <button style={L.priceCta} onClick={() => navigate('/signup?plan=pro')}>
-              Get Kova Pro →
+            <button
+              style={L.priceCta}
+              onClick={() => navigate('/signup?plan=pro')}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 12px 48px rgba(102,126,234,0.5), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
+              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 8px 32px rgba(102,126,234,0.35), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
+            >
+              Get Kova Pro
             </button>
           </div>
         </div>
       </div>
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <div style={L.footer}>
-        <div style={{ marginBottom:'8px' }}>
-          <span style={{ cursor:'pointer', textDecoration:'underline' }} onClick={() => navigate('/terms')}>Terms of Service</span>
-          <span style={{ margin:'0 12px' }}>|</span>
-          <span style={{ cursor:'pointer', textDecoration:'underline' }} onClick={() => navigate('/privacy')}>Privacy Policy</span>
+      {/* ── FAQ ────────────────────────────────────────────────────────────── */}
+      <div style={L.section} id="faq">
+        <div style={{ textAlign: 'center' }}>
+          <div style={L.sectionLabel}>FAQ</div>
         </div>
-        © {new Date().getFullYear()} Kova. All rights reserved.
+        <h2 style={{ ...L.sectionTitle, marginBottom: '16px' }}>Frequently Asked Questions</h2>
+        <p style={L.sectionSub}>
+          Everything you need to know about Kova
+        </p>
+        <div style={L.faqWrap}>
+          {FAQS.map((faq, i) => {
+            const isOpen = openFaq === i;
+            return (
+              <div key={i} style={L.faqItem}>
+                <button
+                  style={L.faqQuestion}
+                  onClick={() => setOpenFaq(isOpen ? null : i)}
+                >
+                  <span>{faq.q}</span>
+                  <span style={{
+                    ...L.faqIcon,
+                    transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
+                  }}>+</span>
+                </button>
+                {isOpen && (
+                  <div style={L.faqAnswer}>{faq.a}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <footer style={L.footer}>
+        <div style={L.footerBrand}>Kova</div>
+        <div style={L.footerLinks}>
+          <span
+            style={L.footerLink}
+            onClick={() => navigate('/terms')}
+            onMouseEnter={e => { e.target.style.color = 'rgba(255,255,255,0.7)'; }}
+            onMouseLeave={e => { e.target.style.color = 'rgba(255,255,255,0.4)'; }}
+          >
+            Terms of Service
+          </span>
+          <span
+            style={L.footerLink}
+            onClick={() => navigate('/privacy')}
+            onMouseEnter={e => { e.target.style.color = 'rgba(255,255,255,0.7)'; }}
+            onMouseLeave={e => { e.target.style.color = 'rgba(255,255,255,0.4)'; }}
+          >
+            Privacy Policy
+          </span>
+          <span
+            style={L.footerLink}
+            onClick={() => navigate('/portal/login')}
+            onMouseEnter={e => { e.target.style.color = 'rgba(255,255,255,0.7)'; }}
+            onMouseLeave={e => { e.target.style.color = 'rgba(255,255,255,0.4)'; }}
+          >
+            Sign In
+          </span>
+        </div>
+        <div>&copy; 2026 Kova. All rights reserved.</div>
+      </footer>
     </div>
   );
 }
