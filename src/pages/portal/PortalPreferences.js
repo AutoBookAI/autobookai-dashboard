@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
 
@@ -404,6 +404,24 @@ export default function PortalPreferences() {
   const [appSearch, setAppSearch] = useState('');
   const [expandedCategories, setExpandedCategories] = useState({});
 
+  // Voice cloning state
+  const [voiceStatus, setVoiceStatus] = useState({ hasVoice: false, voiceId: null });
+  const [voiceModal, setVoiceModal] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [voiceUploading, setVoiceUploading] = useState(false);
+  const [voiceDeleting, setVoiceDeleting] = useState(false);
+  const [playingPreview, setPlayingPreview] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const timerRef = useRef(null);
+  const canvasRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animFrameRef = useRef(null);
+  const streamRef = useRef(null);
+  const audioRef = useRef(null);
+
   useEffect(() => {
     customerApi.get('/api/customer/profile').then(r => {
       if (r.data) {
@@ -424,6 +442,10 @@ export default function PortalPreferences() {
       setCalendarConnected(r.data?.connected || false);
     }).catch(() => {});
 
+    customerApi.get('/api/customer/voice/status').then(r => {
+      setVoiceStatus(r.data || { hasVoice: false, voiceId: null });
+    }).catch(() => {});
+
     const params = new URLSearchParams(window.location.search);
     const calendarResult = params.get('calendar');
     if (calendarResult === 'connected') {
@@ -441,10 +463,11 @@ export default function PortalPreferences() {
 
   // Close modal on Escape key
   const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Escape' && appModal) {
-      setAppModal(null);
+    if (e.key === 'Escape') {
+      if (voiceModal) closeVoiceModal();
+      else if (appModal) setAppModal(null);
     }
-  }, [appModal]);
+  }, [appModal, voiceModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -520,6 +543,160 @@ export default function PortalPreferences() {
   function openAppModal(app) {
     setAppCreds({ username: '', password: '' });
     setAppModal(app);
+  }
+
+  // ── Voice recording functions ──────────────────────────────────────────────
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setRecordedBlob(blob);
+        setRecording(false);
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+        }
+        cancelAnimationFrame(animFrameRef.current);
+      };
+
+      mediaRecorder.start(100);
+      setRecording(true);
+      setRecordedBlob(null);
+      setRecordingTime(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime(t => t + 1);
+      }, 1000);
+
+      // Waveform visualizer
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+      drawWaveform();
+    } catch {
+      alert('Microphone access is required for voice cloning.');
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    clearInterval(timerRef.current);
+  }
+
+  function drawWaveform() {
+    const canvas = canvasRef.current;
+    const analyser = analyserRef.current;
+    if (!canvas || !analyser) return;
+    const ctx = canvas.getContext('2d');
+    const bufLen = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufLen);
+
+    function draw() {
+      animFrameRef.current = requestAnimationFrame(draw);
+      analyser.getByteTimeDomainData(dataArray);
+      ctx.fillStyle = 'rgba(26, 26, 46, 0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#7c5cfc';
+      ctx.beginPath();
+      const sliceWidth = canvas.width / bufLen;
+      let x = 0;
+      for (let i = 0; i < bufLen; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * canvas.height) / 2;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.stroke();
+    }
+    draw();
+  }
+
+  function playPreview() {
+    if (!recordedBlob) return;
+    const url = URL.createObjectURL(recordedBlob);
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.onended = () => setPlayingPreview(false);
+    audio.play();
+    setPlayingPreview(true);
+  }
+
+  function stopPreview() {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setPlayingPreview(false);
+  }
+
+  async function uploadVoice() {
+    if (!recordedBlob) return;
+    setVoiceUploading(true);
+    try {
+      const token = localStorage.getItem('customerToken');
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const resp = await fetch(`${apiUrl}/api/customer/voice/clone`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'audio/webm',
+          Authorization: `Bearer ${token}`,
+        },
+        body: recordedBlob,
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'Upload failed');
+      setVoiceStatus({ hasVoice: true, voiceId: data.voiceId });
+      setVoiceModal(false);
+      setRecordedBlob(null);
+    } catch (err) {
+      alert(err.message || 'Voice cloning failed');
+    } finally {
+      setVoiceUploading(false);
+    }
+  }
+
+  async function deleteVoice() {
+    if (!window.confirm('Delete your custom voice? Calls will use the default voice.')) return;
+    setVoiceDeleting(true);
+    try {
+      await customerApi.delete('/api/customer/voice/clone');
+      setVoiceStatus({ hasVoice: false, voiceId: null });
+    } catch {
+      alert('Failed to delete voice');
+    } finally {
+      setVoiceDeleting(false);
+    }
+  }
+
+  function closeVoiceModal() {
+    stopRecording();
+    stopPreview();
+    setVoiceModal(false);
+    setRecordedBlob(null);
+    setRecordingTime(0);
+  }
+
+  function formatRecordingTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   }
 
   function toggleCategory(catName) {
@@ -758,6 +935,43 @@ export default function PortalPreferences() {
           </div>
         </div>
 
+        {/* Voice Settings */}
+        <div style={S.card}>
+          <h3 style={S.sectionTitle}>Voice Settings</h3>
+          <p style={S.sectionSub}>
+            Clone your voice so Kova sounds like you on phone calls. Record a 30-second sample and we'll create a custom voice using ElevenLabs.
+          </p>
+          {voiceStatus.hasVoice ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '8px 18px', borderRadius: '24px', fontSize: '13px', fontWeight: 600,
+                background: 'rgba(46, 125, 50, 0.15)', color: '#66bb6a',
+                border: '1px solid rgba(46, 125, 50, 0.25)',
+              }}>
+                Custom voice active
+              </span>
+              <button style={{
+                ...S.back, background: 'rgba(124,92,252,0.15)', borderColor: 'rgba(124,92,252,0.3)',
+                color: '#a78bfa',
+              }} onClick={() => setVoiceModal(true)}>
+                Re-record
+              </button>
+              <button style={{ ...S.removeBtn, padding: '8px 16px' }}
+                onClick={deleteVoice} disabled={voiceDeleting}>
+                {voiceDeleting ? 'Deleting...' : 'Remove voice'}
+              </button>
+            </div>
+          ) : (
+            <button style={{
+              ...S.saveBtn, background: 'linear-gradient(135deg, #7c5cfc, #a78bfa)',
+              display: 'flex', alignItems: 'center', gap: '8px',
+            }} onClick={() => setVoiceModal(true)}>
+              Record Voice Sample
+            </button>
+          )}
+        </div>
+
         {/* Connected Apps - Redesigned */}
         <div style={{ ...S.card, padding: '28px 28px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -979,6 +1193,144 @@ export default function PortalPreferences() {
                   Close
                 </button>
               </>
+            )}
+          </div>
+        </div>
+      )}
+      {/* Voice Recording Modal */}
+      {voiceModal && (
+        <div
+          style={S.modalOverlay}
+          onClick={e => e.target === e.currentTarget && closeVoiceModal()}
+        >
+          <div style={{ ...S.modalBox, maxWidth: '480px' }}>
+            <button
+              style={S.modalClose}
+              onClick={closeVoiceModal}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}
+            >
+              &#10005;
+            </button>
+
+            <div style={{ ...S.modalIconWrap, background: 'rgba(124,92,252,0.15)', borderColor: 'rgba(124,92,252,0.25)' }}>
+              <span style={{ fontSize: '28px' }}>&#127908;</span>
+            </div>
+            <div style={S.modalTitle}>Voice Cloning</div>
+            <div style={S.modalSub}>
+              Read the following text aloud in your natural speaking voice. Record at least 20 seconds for best results.
+            </div>
+
+            {/* Sample text to read */}
+            <div style={{
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '12px', padding: '16px 20px', marginBottom: '24px',
+              fontSize: '14px', lineHeight: 1.7, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic',
+            }}>
+              "Hello, I'm calling to make a reservation. I'd like a table for four this Saturday evening around seven thirty. We have a preference for a quiet corner if possible. Also, one of our guests has a nut allergy, so could you please let the kitchen know? Thank you so much, I really appreciate your help."
+            </div>
+
+            {/* Waveform Canvas */}
+            <div style={{
+              background: 'rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden',
+              marginBottom: '20px', border: '1px solid rgba(255,255,255,0.06)',
+            }}>
+              <canvas
+                ref={canvasRef}
+                width={416}
+                height={80}
+                style={{ width: '100%', height: '80px', display: 'block' }}
+              />
+            </div>
+
+            {/* Timer */}
+            {(recording || recordedBlob) && (
+              <div style={{
+                textAlign: 'center', marginBottom: '20px',
+                fontSize: '28px', fontWeight: 600, color: recording ? '#ef5350' : '#a78bfa',
+                fontFamily: "'Inter', monospace", letterSpacing: '2px',
+              }}>
+                {recording && <span style={{
+                  display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%',
+                  background: '#ef5350', marginRight: '12px', verticalAlign: 'middle',
+                  animation: 'pulse 1s ease-in-out infinite',
+                }} />}
+                {formatRecordingTime(recordingTime)}
+              </div>
+            )}
+
+            {/* Controls */}
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              {!recording && !recordedBlob && (
+                <button
+                  style={{
+                    ...S.saveBtn, background: 'linear-gradient(135deg, #ef5350, #e53935)',
+                    padding: '14px 36px', display: 'flex', alignItems: 'center', gap: '8px',
+                  }}
+                  onClick={startRecording}
+                >
+                  Start Recording
+                </button>
+              )}
+
+              {recording && (
+                <button
+                  style={{
+                    ...S.saveBtn, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                    padding: '14px 36px',
+                  }}
+                  onClick={stopRecording}
+                >
+                  Stop Recording
+                </button>
+              )}
+
+              {recordedBlob && !recording && (
+                <>
+                  <button
+                    style={{
+                      ...S.back, padding: '12px 20px',
+                      background: playingPreview ? 'rgba(239,83,80,0.15)' : 'rgba(255,255,255,0.06)',
+                      borderColor: playingPreview ? 'rgba(239,83,80,0.3)' : 'rgba(255,255,255,0.1)',
+                      color: playingPreview ? '#ef5350' : 'rgba(255,255,255,0.7)',
+                    }}
+                    onClick={playingPreview ? stopPreview : playPreview}
+                  >
+                    {playingPreview ? 'Stop' : 'Play'}
+                  </button>
+                  <button
+                    style={{
+                      ...S.back, padding: '12px 20px',
+                    }}
+                    onClick={() => { setRecordedBlob(null); setRecordingTime(0); }}
+                  >
+                    Re-record
+                  </button>
+                  <button
+                    style={{
+                      ...S.saveBtn,
+                      background: voiceUploading
+                        ? 'rgba(124,92,252,0.3)'
+                        : 'linear-gradient(135deg, #7c5cfc, #a78bfa)',
+                      padding: '12px 28px',
+                      opacity: voiceUploading ? 0.6 : 1,
+                    }}
+                    onClick={uploadVoice}
+                    disabled={voiceUploading}
+                  >
+                    {voiceUploading ? 'Cloning...' : 'Clone Voice'}
+                  </button>
+                </>
+              )}
+            </div>
+
+            {recordingTime > 0 && recordingTime < 20 && !recording && recordedBlob && (
+              <div style={{
+                textAlign: 'center', marginTop: '12px',
+                fontSize: '12px', color: 'rgba(251,191,36,0.8)',
+              }}>
+                Recording is short. 20+ seconds recommended for best quality.
+              </div>
             )}
           </div>
         </div>
