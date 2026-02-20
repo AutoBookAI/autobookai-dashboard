@@ -464,7 +464,7 @@ export default function Portal() {
               <div style={S.whatsappTitle}>Your Kova WhatsApp Number</div>
               <div style={S.whatsappNumber}>+1 (415) 523-8886</div>
               <div style={S.whatsappHint}>
-                Text this number on WhatsApp to talk to Kova. Save it in your contacts for easy access.
+                First, send <strong style={{ color: '#25D366' }}>"join success-alphabet"</strong> to this number on WhatsApp to connect. Then you can text Kova anytime.
               </div>
             </>
           ) : (
