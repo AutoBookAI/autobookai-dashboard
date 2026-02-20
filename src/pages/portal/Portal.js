@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
 
@@ -231,10 +231,134 @@ const S = {
     color: 'rgba(255,255,255,0.25)', fontSize: '14px',
   },
 
+  // Voice onboarding modal
+  voiceOverlay: {
+    position: 'fixed', inset: 0, zIndex: 9999,
+    background: 'linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 40%, #0f3460 100%)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: "'Inter', sans-serif",
+    animation: 'voiceFadeIn 0.5s ease',
+  },
+  voiceModal: {
+    width: '100%', maxWidth: '520px', padding: 'clamp(32px, 5vw, 56px)',
+    textAlign: 'center', position: 'relative',
+  },
+  voiceLogoMark: {
+    width: '56px', height: '56px', borderRadius: '16px',
+    background: 'linear-gradient(135deg, #7c5cfc, #a78bfa)',
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: '26px', fontWeight: 700, color: '#fff', marginBottom: '24px',
+    boxShadow: '0 8px 32px rgba(124,92,252,0.4)',
+  },
+  voiceTitle: {
+    fontFamily: "'Playfair Display', serif", fontWeight: 700,
+    fontSize: 'clamp(24px, 4vw, 32px)', color: '#fff',
+    marginBottom: '12px', letterSpacing: '-0.02em', lineHeight: 1.2,
+  },
+  voiceSub: {
+    color: 'rgba(255,255,255,0.5)', fontSize: '15px', lineHeight: 1.6,
+    marginBottom: '36px', maxWidth: '400px', margin: '0 auto 36px',
+  },
+  voiceSampleText: {
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '12px', padding: '20px 24px',
+    color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: 1.7,
+    fontStyle: 'italic', marginBottom: '28px', textAlign: 'left',
+  },
+  voiceCanvas: {
+    width: '100%', height: '80px', borderRadius: '12px',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    marginBottom: '20px',
+  },
+  voiceTimer: {
+    fontSize: '28px', fontWeight: 600, color: '#a78bfa',
+    fontFamily: "'Inter', monospace", marginBottom: '24px',
+    letterSpacing: '0.05em',
+  },
+  voiceBtnRow: {
+    display: 'flex', gap: '12px', justifyContent: 'center',
+    flexWrap: 'wrap', marginBottom: '20px',
+  },
+  voiceRecordBtn: {
+    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+    border: 'none', borderRadius: '50%', width: '64px', height: '64px',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 20px rgba(239,68,68,0.4)',
+    transition: 'all 0.2s ease', color: '#fff', fontSize: '24px',
+  },
+  voiceStopBtn: {
+    background: 'rgba(239,68,68,0.15)',
+    border: '2px solid rgba(239,68,68,0.4)',
+    borderRadius: '12px', width: '64px', height: '64px',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', color: '#ef4444', fontSize: '20px',
+  },
+  voiceActionBtn: {
+    background: 'rgba(124,92,252,0.15)',
+    border: '1px solid rgba(124,92,252,0.3)',
+    borderRadius: '12px', padding: '12px 28px',
+    color: '#a78bfa', fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+    fontFamily: "'Inter', sans-serif", transition: 'all 0.2s ease',
+  },
+  voiceCloneBtn: {
+    background: 'linear-gradient(135deg, #7c5cfc, #a78bfa)',
+    border: 'none', borderRadius: '12px', padding: '14px 36px',
+    color: '#fff', fontSize: '15px', fontWeight: 600, cursor: 'pointer',
+    fontFamily: "'Inter', sans-serif", transition: 'all 0.2s ease',
+    boxShadow: '0 4px 20px rgba(124,92,252,0.4)',
+  },
+  voiceSkipBtn: {
+    background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)',
+    fontSize: '14px', cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+    padding: '12px 24px', transition: 'color 0.2s ease',
+  },
+  voiceUploading: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px',
+    padding: '20px 0',
+  },
+  voiceSuccess: {
+    color: '#34d399', fontSize: '16px', fontWeight: 600,
+    display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center',
+    marginBottom: '20px',
+  },
+  voiceComingSoon: {
+    background: 'rgba(251,191,36,0.08)',
+    border: '1px solid rgba(251,191,36,0.2)',
+    borderRadius: '16px', padding: '32px',
+    marginBottom: '28px',
+  },
+  voiceComingSoonIcon: {
+    fontSize: '48px', marginBottom: '16px', display: 'block',
+  },
+  voiceComingSoonText: {
+    color: '#fbbf24', fontSize: '18px', fontWeight: 600, marginBottom: '8px',
+  },
+  voiceComingSoonSub: {
+    color: 'rgba(255,255,255,0.4)', fontSize: '14px', lineHeight: 1.5,
+  },
+  voiceGotItBtn: {
+    background: 'linear-gradient(135deg, #7c5cfc, #a78bfa)',
+    border: 'none', borderRadius: '12px', padding: '14px 40px',
+    color: '#fff', fontSize: '15px', fontWeight: 600, cursor: 'pointer',
+    fontFamily: "'Inter', sans-serif", marginTop: '8px',
+    boxShadow: '0 4px 20px rgba(124,92,252,0.4)',
+    transition: 'all 0.2s ease',
+  },
+
   // Keyframes style tag content
   keyframes: `
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+    @keyframes voiceFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes voicePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
     }
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
   `,
@@ -250,6 +374,23 @@ export default function Portal() {
   const [billingLoading, setBillingLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Voice onboarding state
+  const [showVoiceOnboarding, setShowVoiceOnboarding] = useState(false);
+  const [voiceElevenlabsAvailable, setVoiceElevenlabsAvailable] = useState(true);
+  const [voiceRecording, setVoiceRecording] = useState(false);
+  const [voiceRecordedBlob, setVoiceRecordedBlob] = useState(null);
+  const [voiceRecordingTime, setVoiceRecordingTime] = useState(0);
+  const [voiceUploading, setVoiceUploading] = useState(false);
+  const [voiceSuccess, setVoiceSuccess] = useState(false);
+  const [voicePlayingPreview, setVoicePlayingPreview] = useState(false);
+  const voiceMediaRecorder = useRef(null);
+  const voiceCanvasRef = useRef(null);
+  const voiceAnalyser = useRef(null);
+  const voiceAnimFrame = useRef(null);
+  const voiceTimerRef = useRef(null);
+  const voiceStreamRef = useRef(null);
+  const voiceAudioRef = useRef(null);
 
   // Handle OAuth redirect -- store token from URL params
   useEffect(() => {
@@ -279,6 +420,17 @@ export default function Portal() {
     customerApi.get('/api/customer/activity?page=1&limit=5')
       .then(r => setActivities(r.data.activities || []))
       .catch(() => {});
+
+    // Check voice onboarding status
+    customerApi.get('/api/customer/voice/status')
+      .then(r => {
+        const { hasVoice, onboardingShown, elevenlabsAvailable } = r.data;
+        setVoiceElevenlabsAvailable(elevenlabsAvailable);
+        if (!hasVoice && !onboardingShown) {
+          setShowVoiceOnboarding(true);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   function logout() {
@@ -298,6 +450,129 @@ export default function Portal() {
     } finally {
       setBillingLoading(false);
     }
+  }
+
+  // ── Voice onboarding functions ──────────────────────────────────────────────
+
+  const drawVoiceWaveform = useCallback(() => {
+    const canvas = voiceCanvasRef.current;
+    const analyser = voiceAnalyser.current;
+    if (!canvas || !analyser) return;
+    const ctx = canvas.getContext('2d');
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const draw = () => {
+      voiceAnimFrame.current = requestAnimationFrame(draw);
+      analyser.getByteTimeDomainData(data);
+      ctx.fillStyle = 'rgba(13,13,26,0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#7c5cfc';
+      ctx.beginPath();
+      const sliceWidth = canvas.width / data.length;
+      let x = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = data[i] / 128.0;
+        const y = (v * canvas.height) / 2;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.stroke();
+    };
+    draw();
+  }, []);
+
+  function startVoiceRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      voiceStreamRef.current = stream;
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyserNode = audioCtx.createAnalyser();
+      analyserNode.fftSize = 2048;
+      source.connect(analyserNode);
+      voiceAnalyser.current = analyserNode;
+
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      const chunks = [];
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        setVoiceRecordedBlob(blob);
+        cancelAnimationFrame(voiceAnimFrame.current);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      voiceMediaRecorder.current = recorder;
+      recorder.start();
+      setVoiceRecording(true);
+      setVoiceRecordedBlob(null);
+      setVoiceRecordingTime(0);
+
+      voiceTimerRef.current = setInterval(() => {
+        setVoiceRecordingTime(prev => prev + 1);
+      }, 1000);
+
+      drawVoiceWaveform();
+    }).catch(() => {
+      alert('Microphone access is required for voice cloning.');
+    });
+  }
+
+  function stopVoiceRecording() {
+    if (voiceMediaRecorder.current && voiceMediaRecorder.current.state !== 'inactive') {
+      voiceMediaRecorder.current.stop();
+    }
+    setVoiceRecording(false);
+    clearInterval(voiceTimerRef.current);
+  }
+
+  function playVoicePreview() {
+    if (!voiceRecordedBlob) return;
+    const url = URL.createObjectURL(voiceRecordedBlob);
+    const audio = new Audio(url);
+    voiceAudioRef.current = audio;
+    setVoicePlayingPreview(true);
+    audio.onended = () => { setVoicePlayingPreview(false); URL.revokeObjectURL(url); };
+    audio.play();
+  }
+
+  function stopVoicePreview() {
+    if (voiceAudioRef.current) {
+      voiceAudioRef.current.pause();
+      voiceAudioRef.current.currentTime = 0;
+    }
+    setVoicePlayingPreview(false);
+  }
+
+  async function uploadVoiceClone() {
+    if (!voiceRecordedBlob) return;
+    setVoiceUploading(true);
+    try {
+      const token = localStorage.getItem('customerToken');
+      const resp = await fetch(
+        `${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/customer/voice/clone`,
+        { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'audio/webm' }, body: voiceRecordedBlob }
+      );
+      if (!resp.ok) throw new Error('Clone failed');
+      setVoiceSuccess(true);
+      // Mark onboarding shown
+      await customerApi.post('/api/customer/voice/onboarding-shown');
+      setTimeout(() => setShowVoiceOnboarding(false), 2000);
+    } catch {
+      alert('Voice cloning failed. Please try again.');
+    } finally {
+      setVoiceUploading(false);
+    }
+  }
+
+  async function skipVoiceOnboarding() {
+    setShowVoiceOnboarding(false);
+    customerApi.post('/api/customer/voice/onboarding-shown').catch(() => {});
+  }
+
+  function formatVoiceTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
   }
 
   function formatEventType(type) {
@@ -361,6 +636,122 @@ export default function Portal() {
   return (
     <div style={S.page}>
       <style>{S.keyframes}</style>
+
+      {/* Voice Onboarding Modal */}
+      {showVoiceOnboarding && (
+        <div style={S.voiceOverlay}>
+          <div style={S.voiceModal}>
+            <div style={S.voiceLogoMark}>K</div>
+            <div style={S.voiceTitle}>Welcome to Kova</div>
+
+            {!voiceElevenlabsAvailable ? (
+              /* ElevenLabs not configured — coming soon message */
+              <>
+                <div style={S.voiceSub}>
+                  We're building something special for you.
+                </div>
+                <div style={S.voiceComingSoon}>
+                  <span style={S.voiceComingSoonIcon}>&#127908;</span>
+                  <div style={S.voiceComingSoonText}>Voice Cloning Coming Soon!</div>
+                  <div style={S.voiceComingSoonSub}>
+                    Soon you'll be able to clone your voice so Kova sounds just like you when making calls on your behalf. Stay tuned!
+                  </div>
+                </div>
+                <button
+                  style={S.voiceGotItBtn}
+                  onClick={skipVoiceOnboarding}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(124,92,252,0.5)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(124,92,252,0.4)'; }}
+                >
+                  Got it
+                </button>
+              </>
+            ) : voiceSuccess ? (
+              /* Voice cloned successfully */
+              <>
+                <div style={S.voiceSuccess}>
+                  <span>&#10003;</span> Voice cloned successfully!
+                </div>
+                <div style={S.voiceSub}>
+                  Kova will now use your voice on calls. You can manage this in Preferences anytime.
+                </div>
+              </>
+            ) : (
+              /* Recording UI */
+              <>
+                <div style={S.voiceSub}>
+                  Want Kova to sound like you on calls? Record a short voice sample and we'll clone your voice.
+                </div>
+
+                <div style={S.voiceSampleText}>
+                  <strong style={{ color: 'rgba(255,255,255,0.85)' }}>Read this aloud:</strong><br /><br />
+                  "Hi, I'd like to make a reservation for two this Saturday evening around 7 PM. We'd prefer a quiet table if possible. Thank you so much!"
+                </div>
+
+                <canvas ref={voiceCanvasRef} width={460} height={80} style={S.voiceCanvas} />
+
+                {(voiceRecording || voiceRecordedBlob) && (
+                  <div style={S.voiceTimer}>{formatVoiceTime(voiceRecordingTime)}</div>
+                )}
+
+                {voiceUploading ? (
+                  <div style={S.voiceUploading}>
+                    <div style={S.spinner} />
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Cloning your voice...</div>
+                  </div>
+                ) : (
+                  <div style={S.voiceBtnRow}>
+                    {!voiceRecording && !voiceRecordedBlob && (
+                      <button
+                        style={{ ...S.voiceRecordBtn, animation: 'voicePulse 2s ease infinite' }}
+                        onClick={startVoiceRecording}
+                        title="Start recording"
+                      >
+                        &#9679;
+                      </button>
+                    )}
+                    {voiceRecording && (
+                      <button style={S.voiceStopBtn} onClick={stopVoiceRecording} title="Stop recording">
+                        &#9632;
+                      </button>
+                    )}
+                    {voiceRecordedBlob && !voiceRecording && (
+                      <>
+                        <button
+                          style={S.voiceActionBtn}
+                          onClick={voicePlayingPreview ? stopVoicePreview : playVoicePreview}
+                        >
+                          {voicePlayingPreview ? 'Stop' : 'Play'}
+                        </button>
+                        <button style={S.voiceActionBtn} onClick={() => { setVoiceRecordedBlob(null); setVoiceRecordingTime(0); }}>
+                          Re-record
+                        </button>
+                        <button
+                          style={S.voiceCloneBtn}
+                          onClick={uploadVoiceClone}
+                          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(124,92,252,0.5)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(124,92,252,0.4)'; }}
+                        >
+                          Clone My Voice
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  style={S.voiceSkipBtn}
+                  onClick={skipVoiceOnboarding}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}
+                >
+                  Skip for now
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <header style={S.header}>
