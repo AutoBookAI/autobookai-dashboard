@@ -7,9 +7,10 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 const SOCIAL_PROVIDERS = [
   { id: 'google',    label: 'Google',    color: '#4285F4', icon: 'G' },
   { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f' },
+  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\uF8FF' },
   { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in' },
   { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: 'IG' },
-  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\uF8FF' },
+  { id: 'tiktok',    label: 'TikTok',    color: '#000000', icon: 'TT' },
 ];
 
 const C = {
@@ -70,7 +71,7 @@ const C = {
   },
   dividerLine: { flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' },
   socialGrid: {
-    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '4px',
+    display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '4px',
   },
   socialBtn: (color) => ({
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -152,16 +153,12 @@ export default function PortalLogin() {
 
         {/* Social login buttons */}
         <div style={C.socialGrid}>
-          {SOCIAL_PROVIDERS.slice(0, 4).map(p => (
+          {SOCIAL_PROVIDERS.map(p => (
             <div key={p.id} style={C.socialBtn(p.color)} onClick={() => socialLogin(p.id)}>
               <div style={C.socialIcon(p.color)}>{p.icon}</div>
               <span>{p.label}</span>
             </div>
           ))}
-          <div style={C.socialBtnWide} onClick={() => socialLogin('apple')}>
-            <div style={C.socialIcon('#000')}>{'\u{F8FF}'}</div>
-            <span>Apple</span>
-          </div>
         </div>
 
         <div style={C.divider}>

@@ -3,26 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
 
 const APP_CATEGORIES = [
-  { category: 'Ride Sharing', apps: [
+  { category: 'Ride Sharing & Car Rental', apps: [
     { id: 'uber', name: 'Uber', icon: '🚗' },
     { id: 'lyft', name: 'Lyft', icon: '🚕' },
+    { id: 'turo', name: 'Turo', icon: '🏎️' },
   ]},
   { category: 'Food Delivery', apps: [
     { id: 'doordash', name: 'DoorDash', icon: '🍔' },
     { id: 'ubereats', name: 'Uber Eats', icon: '🥡' },
     { id: 'grubhub', name: 'Grubhub', icon: '🍕' },
     { id: 'postmates', name: 'Postmates', icon: '📦' },
+    { id: 'instacart', name: 'Instacart', icon: '🛒' },
   ]},
-  { category: 'Restaurants', apps: [
+  { category: 'Restaurants & Dining', apps: [
     { id: 'opentable', name: 'OpenTable', icon: '🍽️' },
     { id: 'resy', name: 'Resy', icon: '🥂' },
     { id: 'yelp', name: 'Yelp', icon: '⭐' },
   ]},
-  { category: 'Travel', apps: [
+  { category: 'Travel & Hotels', apps: [
     { id: 'airbnb', name: 'Airbnb', icon: '🏡' },
     { id: 'bookingcom', name: 'Booking.com', icon: '🏨' },
     { id: 'expedia', name: 'Expedia', icon: '✈️' },
     { id: 'hotelscom', name: 'Hotels.com', icon: '🛎️' },
+    { id: 'vrbo', name: 'VRBO', icon: '🏠' },
+    { id: 'kayak', name: 'Kayak', icon: '🔍' },
   ]},
   { category: 'Airlines', apps: [
     { id: 'delta', name: 'Delta', icon: '🔺' },
@@ -30,6 +34,7 @@ const APP_CATEGORIES = [
     { id: 'american', name: 'American Airlines', icon: '🦅' },
     { id: 'southwest', name: 'Southwest', icon: '❤️' },
     { id: 'jetblue', name: 'JetBlue', icon: '💙' },
+    { id: 'spirit', name: 'Spirit', icon: '🟡' },
   ]},
   { category: 'Calendar & Email', apps: [
     { id: 'google_calendar', name: 'Google Calendar', icon: '📅' },
@@ -38,34 +43,55 @@ const APP_CATEGORIES = [
     { id: 'gmail', name: 'Gmail', icon: '📧' },
     { id: 'outlook', name: 'Outlook', icon: '📨' },
   ]},
-  { category: 'Shopping', apps: [
+  { category: 'Shopping & Groceries', apps: [
     { id: 'amazon', name: 'Amazon', icon: '📦' },
-    { id: 'instacart', name: 'Instacart', icon: '🛒' },
     { id: 'walmart', name: 'Walmart', icon: '🏪' },
+    { id: 'target', name: 'Target', icon: '🎯' },
+    { id: 'costco', name: 'Costco', icon: '🛍️' },
+    { id: 'wholefoods', name: 'Whole Foods', icon: '🥑' },
   ]},
-  { category: 'Entertainment', apps: [
+  { category: 'Entertainment & Events', apps: [
     { id: 'spotify', name: 'Spotify', icon: '🎵' },
     { id: 'netflix', name: 'Netflix', icon: '🎬' },
+    { id: 'ticketmaster', name: 'Ticketmaster', icon: '🎫' },
+    { id: 'stubhub', name: 'StubHub', icon: '🎟️' },
+    { id: 'fandango', name: 'Fandango', icon: '🍿' },
   ]},
   { category: 'Productivity', apps: [
     { id: 'notion', name: 'Notion', icon: '📝' },
     { id: 'slack', name: 'Slack', icon: '💬' },
     { id: 'trello', name: 'Trello', icon: '📋' },
+    { id: 'todoist', name: 'Todoist', icon: '✅' },
   ]},
-  { category: 'Finance', apps: [
+  { category: 'Services', apps: [
+    { id: 'taskrabbit', name: 'TaskRabbit', icon: '🐰' },
+    { id: 'thumbtack', name: 'Thumbtack', icon: '📌' },
+    { id: 'angi', name: 'Angi', icon: '🔧' },
+  ]},
+  { category: 'Finance & Payments', apps: [
     { id: 'venmo', name: 'Venmo', icon: '💸' },
     { id: 'paypal', name: 'PayPal', icon: '💰' },
     { id: 'cashapp', name: 'Cash App', icon: '💵' },
+    { id: 'zelle', name: 'Zelle', icon: '🏦' },
   ]},
-  { category: 'Health', apps: [
+  { category: 'Health & Fitness', apps: [
     { id: 'myfitnesspal', name: 'MyFitnessPal', icon: '💪' },
+    { id: 'peloton', name: 'Peloton', icon: '🚴' },
+    { id: 'classpass', name: 'ClassPass', icon: '🧘' },
     { id: 'apple_health', name: 'Apple Health', icon: '❤️‍🩹' },
   ]},
-  { category: 'Social', apps: [
+  { category: 'Social Media', apps: [
     { id: 'instagram', name: 'Instagram', icon: '📸' },
     { id: 'facebook', name: 'Facebook', icon: '👤' },
-    { id: 'linkedin', name: 'LinkedIn', icon: '💼' },
+    { id: 'tiktok', name: 'TikTok', icon: '🎵' },
     { id: 'twitter', name: 'Twitter/X', icon: '🐦' },
+    { id: 'linkedin', name: 'LinkedIn', icon: '💼' },
+    { id: 'pinterest', name: 'Pinterest', icon: '📌' },
+    { id: 'snapchat', name: 'Snapchat', icon: '👻' },
+  ]},
+  { category: 'Messaging', apps: [
+    { id: 'whatsapp', name: 'WhatsApp', icon: '💬' },
+    { id: 'telegram', name: 'Telegram', icon: '✈️' },
   ]},
 ];
 
@@ -151,31 +177,47 @@ const S = {
   modal: {
     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
-    backdropFilter: 'blur(4px)',
+    backdropFilter: 'blur(4px)', animation: 'fadeIn 0.15s ease-out',
   },
   modalBox: {
     background: '#fff', border: '1px solid #ede8e1', borderRadius: '16px',
     padding: '36px', width: '100%', maxWidth: '400px',
-    boxShadow: '0 32px 80px rgba(0,0,0,0.2)',
+    boxShadow: '0 32px 80px rgba(0,0,0,0.2)', animation: 'slideUp 0.2s ease-out',
+  },
+  modalIconWrap: {
+    width: '56px', height: '56px', borderRadius: '14px', background: '#f8f5f0',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: '28px', marginBottom: '16px',
   },
   modalTitle: {
     fontFamily: "'Playfair Display',serif", fontSize: '20px', fontWeight: 600, marginBottom: '6px',
   },
-  modalSub: { color: '#888', fontSize: '13px', marginBottom: '24px' },
+  modalSub: { color: '#888', fontSize: '13px', marginBottom: '24px', lineHeight: 1.5 },
+  modalSecurityBadge: {
+    display: 'flex', alignItems: 'center', gap: '8px',
+    background: '#f0f7ff', border: '1px solid #d4e5ff', borderRadius: '8px',
+    padding: '10px 14px', marginBottom: '20px', fontSize: '12px', color: '#3b6cb4',
+  },
   modalBtns: { display: 'flex', gap: '12px', marginTop: '20px' },
   modalSaveBtn: {
     flex: 1, background: 'linear-gradient(135deg,#667eea,#764ba2)', border: 'none',
     borderRadius: '8px', color: '#fff', padding: '12px', cursor: 'pointer',
-    fontSize: '14px', fontWeight: 600,
+    fontSize: '14px', fontWeight: 600, transition: 'opacity 0.15s',
   },
   modalCancelBtn: {
     flex: 1, background: 'transparent', border: '1px solid #e5e0d8',
     borderRadius: '8px', color: '#999', padding: '12px', cursor: 'pointer', fontSize: '14px',
+    transition: 'all 0.15s',
   },
   modalDisconnectBtn: {
     width: '100%', background: '#ffebee', border: 'none', borderRadius: '8px',
     color: '#c62828', padding: '12px', cursor: 'pointer', fontSize: '14px',
-    fontWeight: 500, marginTop: '12px',
+    fontWeight: 500, marginTop: '12px', transition: 'background 0.15s',
+  },
+  modalConnectedBadge: {
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    background: '#e8f5e9', color: '#2e7d32', borderRadius: '20px',
+    padding: '6px 14px', fontSize: '13px', fontWeight: 600, marginBottom: '16px',
   },
 };
 
@@ -554,33 +596,40 @@ export default function PortalPreferences() {
       {appModal && (
         <div style={S.modal} onClick={e => e.target === e.currentTarget && setAppModal(null)}>
           <div style={S.modalBox}>
-            <div style={{ fontSize: '36px', marginBottom: '8px' }}>{appModal.icon}</div>
+            <div style={S.modalIconWrap}>{appModal.icon}</div>
             <div style={S.modalTitle}>
-              {connectedApps[appModal.id] ? `${appModal.name} Connected` : `Connect ${appModal.name}`}
-            </div>
-            <div style={S.modalSub}>
-              {connectedApps[appModal.id]
-                ? 'Your credentials are securely stored. Kova will use them when needed.'
-                : 'Enter your login credentials. They will be encrypted and stored securely.'}
+              {connectedApps[appModal.id] ? appModal.name : `Connect ${appModal.name}`}
             </div>
 
             {!connectedApps[appModal.id] && (
               <>
+                <div style={S.modalSub}>
+                  Enter your {appModal.name} login credentials. Kova will use these to perform actions on your behalf.
+                </div>
+
+                <div style={S.modalSecurityBadge}>
+                  <span style={{ fontSize: '14px' }}>&#128274;</span>
+                  <span>Encrypted with AES-256. We never store credentials in plain text.</span>
+                </div>
+
                 <div style={{ marginBottom: '16px' }}>
                   <label style={S.label}>Username / Email</label>
                   <input style={S.input} value={appCreds.username}
                     onChange={e => setAppCreds(c => ({ ...c, username: e.target.value }))}
-                    placeholder={`Your ${appModal.name} username`} />
+                    placeholder={`Your ${appModal.name} email or username`}
+                    autoFocus />
                 </div>
                 <div>
                   <label style={S.label}>Password</label>
                   <input style={S.input} type="password" value={appCreds.password}
                     onChange={e => setAppCreds(c => ({ ...c, password: e.target.value }))}
-                    placeholder="Your password" />
+                    placeholder="Your password"
+                    onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && connectApp()} />
                 </div>
                 <div style={S.modalBtns}>
                   <button style={S.modalCancelBtn} onClick={() => setAppModal(null)}>Cancel</button>
-                  <button style={S.modalSaveBtn} onClick={connectApp} disabled={appSaving}>
+                  <button style={{ ...S.modalSaveBtn, ...(appSaving ? { opacity: 0.7 } : {}) }}
+                    onClick={connectApp} disabled={appSaving}>
                     {appSaving ? 'Connecting...' : 'Connect'}
                   </button>
                 </div>
@@ -589,6 +638,12 @@ export default function PortalPreferences() {
 
             {connectedApps[appModal.id] && (
               <>
+                <div style={S.modalSub}>
+                  Your credentials are securely stored and encrypted. Kova will use them when needed to complete tasks on your behalf.
+                </div>
+                <div style={S.modalConnectedBadge}>
+                  <span>&#10003;</span> Connected
+                </div>
                 <button style={S.modalDisconnectBtn} onClick={() => disconnectApp(appModal.id)}>
                   Disconnect {appModal.name}
                 </button>

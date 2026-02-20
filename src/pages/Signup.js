@@ -7,9 +7,10 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 const SOCIAL_PROVIDERS = [
   { id: 'google',    label: 'Google',    color: '#4285F4', icon: 'G' },
   { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f' },
+  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\u{F8FF}' },
   { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in' },
   { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: 'IG' },
-  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\u{F8FF}' },
+  { id: 'tiktok',    label: 'TikTok',    color: '#000000', icon: 'TT' },
 ];
 
 const AI_NAMES = [
@@ -106,7 +107,7 @@ const S = {
     textTransform:'uppercase', letterSpacing:'1px',
   },
   dividerLine: { flex:1, height:'1px', background:'rgba(255,255,255,0.1)' },
-  socialGrid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'4px' },
+  socialGrid: { display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'10px', marginBottom:'4px' },
   socialBtn: (color) => ({
     display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
     background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
@@ -240,18 +241,13 @@ export default function Signup() {
 
           {/* Social signup buttons */}
           <div style={S.socialGrid}>
-            {SOCIAL_PROVIDERS.slice(0, 4).map(p => (
+            {SOCIAL_PROVIDERS.map(p => (
               <div key={p.id} style={S.socialBtn(p.color)}
                 onClick={() => { window.location.href = `${API_URL}/api/auth/social/${p.id}?signup=true`; }}>
                 <div style={S.socialIcon(p.color)}>{p.icon}</div>
                 <span>{p.label}</span>
               </div>
             ))}
-            <div style={S.socialBtnWide}
-              onClick={() => { window.location.href = `${API_URL}/api/auth/social/apple?signup=true`; }}>
-              <div style={S.socialIcon('#000')}>{'\u{F8FF}'}</div>
-              <span>Apple</span>
-            </div>
           </div>
 
           <div style={S.divider}>
