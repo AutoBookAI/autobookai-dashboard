@@ -43,7 +43,7 @@ const S = {
     width:'100%', maxWidth:'580px',
     boxShadow:'0 32px 80px rgba(0,0,0,0.4)',
   },
-  icon: { fontSize:'32px', marginBottom:'12px' },
+  logoImg: { height:'48px', width:'48px', objectFit:'contain', marginBottom:'12px' },
   title: {
     fontFamily:"'Playfair Display',serif",
     fontWeight:600, fontSize:'26px', color:'#fff',
@@ -235,7 +235,7 @@ export default function Signup() {
     return (
       <div style={S.page}>
         <div style={S.card}>
-          <div style={S.icon}>🤖</div>
+          <img src="/kova-logo.png" alt="Kova" style={S.logoImg} />
           <div style={S.title}>Get Your Kova Assistant</div>
           <div style={S.sub}>Step 1 of 2 — Create your account</div>
 
@@ -324,7 +324,7 @@ export default function Signup() {
   return (
     <div style={S.page}>
       <div style={S.cardWide}>
-        <div style={S.icon}>✨</div>
+        <img src="/kova-logo.png" alt="Kova" style={S.logoImg} />
         <div style={S.title}>Choose Your Kova Voice</div>
         <div style={S.sub}>Step 2 of 2 — Pick a voice for your assistant</div>
 

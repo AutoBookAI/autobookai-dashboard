@@ -43,11 +43,8 @@ const S = {
     position: 'sticky', top: 0, zIndex: 100,
   },
   logoWrap: { display: 'flex', alignItems: 'center', gap: '10px' },
-  logoMark: {
-    width: '32px', height: '32px', borderRadius: '8px',
-    background: 'linear-gradient(135deg, #7c5cfc, #a78bfa)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: '16px', fontWeight: 700, color: '#fff',
+  logoImg: {
+    height: '32px', width: '32px', objectFit: 'contain',
   },
   logoText: {
     fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '20px',
@@ -243,12 +240,8 @@ const S = {
     width: '100%', maxWidth: '520px', padding: 'clamp(32px, 5vw, 56px)',
     textAlign: 'center', position: 'relative',
   },
-  voiceLogoMark: {
-    width: '56px', height: '56px', borderRadius: '16px',
-    background: 'linear-gradient(135deg, #7c5cfc, #a78bfa)',
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: '26px', fontWeight: 700, color: '#fff', marginBottom: '24px',
-    boxShadow: '0 8px 32px rgba(124,92,252,0.4)',
+  voiceLogoImg: {
+    height: '56px', width: '56px', objectFit: 'contain', marginBottom: '24px',
   },
   voiceTitle: {
     fontFamily: "'Playfair Display', serif", fontWeight: 700,
@@ -641,7 +634,7 @@ export default function Portal() {
       {showVoiceOnboarding && (
         <div style={S.voiceOverlay}>
           <div style={S.voiceModal}>
-            <div style={S.voiceLogoMark}>K</div>
+            <img src="/kova-logo.png" alt="Kova" style={S.voiceLogoImg} />
             <div style={S.voiceTitle}>Welcome to Kova</div>
 
             {!voiceElevenlabsAvailable ? (
@@ -756,7 +749,7 @@ export default function Portal() {
       {/* Header */}
       <header style={S.header}>
         <div style={S.logoWrap}>
-          <div style={S.logoMark}>K</div>
+          <img src="/kova-logo.png" alt="Kova" style={S.logoImg} />
           <span style={S.logoText}>Kova</span>
         </div>
         <div style={S.headerRight}>

@@ -145,6 +145,7 @@ const S = {
     cursor: 'pointer', fontSize: '13px', fontFamily: "'Inter', sans-serif",
     transition: 'all 0.2s',
   },
+  navLogo: { height: '32px', width: '32px', objectFit: 'contain' },
   navTitle: {
     fontFamily: "'Playfair Display', serif", fontSize: '18px', fontWeight: 600,
     color: '#fff',
@@ -737,6 +738,7 @@ export default function PortalPreferences() {
         <button style={S.back} onClick={() => navigate('/portal')}>
           &#8592; Back
         </button>
+        <img src="/kova-logo.png" alt="Kova" style={S.navLogo} />
         <span style={S.navTitle}>My Preferences</span>
       </nav>
 

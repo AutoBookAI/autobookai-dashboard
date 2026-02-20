@@ -34,17 +34,9 @@ const G = {
     gap: '10px',
   },
   logoIcon: {
-    width: '32px',
     height: '32px',
-    borderRadius: '8px',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#fff',
-    fontFamily: "'Playfair Display', serif",
-    fontWeight: 700,
-    fontSize: '16px',
+    width: '32px',
+    objectFit: 'contain',
     flexShrink: 0,
   },
   logoText: {
@@ -785,7 +777,7 @@ export default function Dashboard() {
       {/* ── NAVBAR ────────────────────────────────────────────── */}
       <nav style={G.nav}>
         <div style={G.logoWrap}>
-          <div style={G.logoIcon}>K</div>
+          <img src="/kova-logo.png" alt="Kova" style={G.logoIcon} />
           <div>
             <span style={G.logoText}>Kova Admin</span>
             <span style={G.logoSub}> Platform</span>

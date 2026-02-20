@@ -12,6 +12,7 @@ const S = {
     background: 'transparent', border: '1px solid #e5e0d8', borderRadius: '6px',
     color: '#666', padding: '6px 14px', cursor: 'pointer', fontSize: '13px',
   },
+  navLogo: { height: '32px', width: '32px', objectFit: 'contain' },
   navTitle: { fontFamily: "'Playfair Display',serif", fontSize: '18px', fontWeight: 500 },
   main: { padding: '32px 40px', maxWidth: '800px', margin: '0 auto' },
   card: {
@@ -76,6 +77,7 @@ export default function PortalActivity() {
     <div style={S.page}>
       <nav style={S.nav}>
         <button style={S.back} onClick={() => navigate('/portal')}>← Back</button>
+        <img src="/kova-logo.png" alt="Kova" style={S.navLogo} />
         <span style={S.navTitle}>Activity Log</span>
       </nav>
 

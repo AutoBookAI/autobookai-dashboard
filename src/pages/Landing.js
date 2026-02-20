@@ -141,6 +141,14 @@ const L = {
     color: '#fff',
     letterSpacing: '-0.5px',
     cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  navLogo: {
+    height: '32px',
+    width: '32px',
+    objectFit: 'contain',
   },
   navLinks: {
     display: 'flex',
@@ -705,6 +713,7 @@ export default function Landing() {
         } : {}),
       }}>
         <div style={L.navBrand} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <img src="/kova-logo.png" alt="Kova" style={L.navLogo} />
           Kova
         </div>
         <div style={L.navLinks}>

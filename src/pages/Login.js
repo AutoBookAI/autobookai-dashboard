@@ -18,7 +18,7 @@ const C = {
     width: '100%', maxWidth: '420px',
     boxShadow: '0 32px 80px rgba(0,0,0,0.4)',
   },
-  crown: { fontSize: '28px', marginBottom: '12px' },
+  logoImg: { height: '48px', width: '48px', objectFit: 'contain', marginBottom: '12px' },
   title: {
     fontFamily: "'Playfair Display', serif",
     fontWeight: 600, fontSize: '26px', color: '#fff',
@@ -74,7 +74,7 @@ export default function Login() {
   return (
     <div style={C.page}>
       <div style={C.card}>
-        <div style={C.crown}>🤵</div>
+        <img src="/kova-logo.png" alt="Kova" style={C.logoImg} />
         <div style={C.title}>Kova</div>
         <div style={C.sub}>Admin portal — manage your Kova clients</div>
 
