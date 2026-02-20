@@ -127,6 +127,22 @@ const G = {
     transition: 'transform 0.15s ease, box-shadow 0.15s ease',
     whiteSpace: 'nowrap',
   },
+  exportBtn: {
+    background: '#fff',
+    border: '1px solid #e0dbd4',
+    borderRadius: '10px',
+    color: '#666',
+    padding: '11px 20px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 500,
+    fontFamily: "'Inter', sans-serif",
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    transition: 'all 0.15s ease',
+    whiteSpace: 'nowrap',
+  },
 
   /* ── Stats Grid ────────────────────────────────────────────────── */
   statsGrid: {
@@ -582,6 +598,22 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const admin = JSON.parse(localStorage.getItem('admin') || '{}');
 
+  function exportCSV() {
+    const headers = ['Name','Email','Plan','Status','Agent','WhatsApp'];
+    const rows = filtered.map(c => [
+      c.name, c.email, c.plan || 'standard',
+      c.subscription_status || 'inactive',
+      c.openclaw_status || 'inactive',
+      c.whatsapp_from || '',
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `kova-clients-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  }
+
   /* ── Responsive listener ──────────────────────────────────────── */
   useEffect(() => {
     function handleResize() {
@@ -782,15 +814,25 @@ export default function Dashboard() {
               Manage your Kova clients and AI assistants
             </div>
           </div>
-          <button
-            style={G.addBtn}
-            onClick={() => setModal(true)}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(102,126,234,0.4)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(102,126,234,0.3)'; }}
-          >
-            <span style={{ fontSize: '16px', lineHeight: 1 }}>+</span>
-            Add Client
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              style={G.exportBtn}
+              onClick={exportCSV}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#667eea'; e.currentTarget.style.color = '#667eea'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e0dbd4'; e.currentTarget.style.color = '#666'; }}
+            >
+              Export CSV
+            </button>
+            <button
+              style={G.addBtn}
+              onClick={() => setModal(true)}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(102,126,234,0.4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(102,126,234,0.3)'; }}
+            >
+              <span style={{ fontSize: '16px', lineHeight: 1 }}>+</span>
+              Add Client
+            </button>
+          </div>
         </div>
 
         {/* ── Stats Grid ─────────────────────────────────────── */}
