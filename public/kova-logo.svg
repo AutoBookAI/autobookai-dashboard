@@ -1,40 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="planet" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7c5cfc"/>
+    <linearGradient id="planetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
       <stop offset="100%" stop-color="#4f46e5"/>
     </linearGradient>
-    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="0.5">
-      <stop offset="0%" stop-color="#a78bfa"/>
-      <stop offset="50%" stop-color="#667eea"/>
-      <stop offset="100%" stop-color="#818cf8"/>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.9"/>
     </linearGradient>
-    <linearGradient id="shine" x1="0.2" y1="0" x2="0.8" y2="1">
-      <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#7c5cfc" stop-opacity="0"/>
-    </linearGradient>
-    <clipPath id="planetClip">
-      <circle cx="256" cy="256" r="120"/>
-    </clipPath>
   </defs>
-
-  <!-- Ring behind planet (back half) -->
-  <ellipse cx="256" cy="270" rx="210" ry="58" stroke="url(#ring)" stroke-width="22" fill="none" stroke-linecap="round"
-    stroke-dasharray="0 345 315 1000" transform="rotate(-15 256 270)" opacity="0.5"/>
-
+  <!-- Back ring (behind planet) -->
+  <ellipse cx="256" cy="256" rx="230" ry="70" transform="rotate(-25 256 256)" fill="none" stroke="url(#ringGrad)" stroke-width="18" stroke-linecap="round" opacity="0.4" stroke-dasharray="0 362 360 0"/>
   <!-- Planet body -->
-  <circle cx="256" cy="256" r="120" fill="url(#planet)"/>
-
-  <!-- Planet shine/highlight -->
-  <circle cx="225" cy="225" r="85" fill="url(#shine)"/>
-
-  <!-- Subtle surface band -->
-  <g clip-path="url(#planetClip)">
-    <ellipse cx="256" cy="240" rx="130" ry="14" fill="rgba(255,255,255,0.08)" transform="rotate(-5 256 240)"/>
-    <ellipse cx="256" cy="270" rx="130" ry="10" fill="rgba(255,255,255,0.05)" transform="rotate(-5 256 270)"/>
-  </g>
-
-  <!-- Ring in front of planet (front half) -->
-  <ellipse cx="256" cy="270" rx="210" ry="58" stroke="url(#ring)" stroke-width="22" fill="none" stroke-linecap="round"
-    stroke-dasharray="345 0 0 1000" transform="rotate(-15 256 270)"/>
+  <circle cx="256" cy="256" r="130" fill="url(#planetGrad)"/>
+  <!-- Planet shine highlight -->
+  <circle cx="220" cy="220" r="90" fill="white" opacity="0.08"/>
+  <circle cx="210" cy="210" r="50" fill="white" opacity="0.06"/>
+  <!-- Front ring (in front of planet) -->
+  <ellipse cx="256" cy="256" rx="230" ry="70" transform="rotate(-25 256 256)" fill="none" stroke="url(#ringGrad)" stroke-width="18" stroke-linecap="round" opacity="0.9" stroke-dasharray="362 0 0 360"/>
 </svg>
