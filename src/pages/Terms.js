@@ -128,10 +128,10 @@ export default function Terms() {
 
         <h2 style={S.h2}>8. Payment and Billing</h2>
         <p style={S.p}>
-          The Service is offered on a monthly subscription basis at $49.99/month. You authorize us to
+          The Service is offered on a monthly subscription basis at $25/month. You authorize us to
           charge your payment method on a recurring basis. You may cancel your subscription at any time,
           effective at the end of the current billing period. No refunds are provided for partial months.
-          Your plan includes up to 30 AI messages per day.
+          Your plan includes 200 messages, 10 call minutes, and 20 web tasks per month.
         </p>
 
         <h2 style={S.h2}>9. Indemnification</h2>
