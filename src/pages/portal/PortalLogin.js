@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
+import AppIcon from '../../components/AppIcon';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const SOCIAL_PROVIDERS = [
-  { id: 'google',    label: 'Google',    color: '#4285F4', icon: 'G' },
-  { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f' },
-  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\uF8FF' },
-  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in' },
-  { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: 'IG' },
-  { id: 'tiktok',    label: 'TikTok',    color: '#000000', icon: 'TT' },
+  { id: 'google',    label: 'Google',    color: '#4285F4' },
+  { id: 'facebook',  label: 'Facebook',  color: '#1877F2' },
+  { id: 'apple',     label: 'Apple',     color: '#000000' },
+  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2' },
+  { id: 'instagram', label: 'Instagram', color: '#E4405F' },
+  { id: 'tiktok',    label: 'TikTok',    color: '#000000' },
 ];
 
 const C = {
@@ -155,7 +156,7 @@ export default function PortalLogin() {
         <div style={C.socialGrid}>
           {SOCIAL_PROVIDERS.map(p => (
             <div key={p.id} style={C.socialBtn(p.color)} onClick={() => socialLogin(p.id)}>
-              <div style={C.socialIcon(p.color)}>{p.icon}</div>
+              <div style={C.socialIcon(p.color)}><AppIcon name={p.id} size={14} /></div>
               <span>{p.label}</span>
             </div>
           ))}

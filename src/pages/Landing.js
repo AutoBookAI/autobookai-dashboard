@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AppIcon from '../components/AppIcon';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    STYLES
@@ -615,13 +616,29 @@ const L = {
 /* ═══════════════════════════════════════════════════════════════════════════
    DATA
    ═══════════════════════════════════════════════════════════════════════════ */
+const FeatureIcon = ({ type }) => {
+  const paths = {
+    phone: 'M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.02l-2.2 2.19z',
+    email: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v.01L12 13l8-6.99V6H4zm0 2.83V18h16V8.83l-8 7-8-7z',
+    search: 'M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z',
+    calendar: 'M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z',
+    restaurant: 'M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z',
+    travel: 'M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z',
+  };
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(102,126,234,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+      <path d={paths[type]} fill="rgba(102,126,234,0.9)" stroke="none" />
+    </svg>
+  );
+};
+
 const FEATURES = [
-  { icon: '\uD83D\uDCDE', title: 'Phone Calls', desc: 'Kova calls restaurants, services, and businesses on your behalf -- so you never have to sit on hold again.' },
-  { icon: '\u2709\uFE0F', title: 'Email Management', desc: 'Sends and drafts emails for you. Just tell Kova what to say and who to send it to.' },
-  { icon: '\uD83D\uDD0D', title: 'Web Research', desc: 'Finds information, prices, reviews, and availability across the web in seconds.' },
-  { icon: '\uD83D\uDCC5', title: 'Calendar Management', desc: 'Schedules events, sets reminders, and keeps your calendar organized hands-free.' },
-  { icon: '\uD83C\uDF7D\uFE0F', title: 'Restaurant Bookings', desc: 'Reserves tables at your favorite spots via OpenTable, Resy, or by calling directly.' },
-  { icon: '\u2708\uFE0F', title: 'Travel Planning', desc: 'Searches flights, books hotels, and builds full itineraries tailored to your preferences.' },
+  { iconType: 'phone', title: 'Phone Calls', desc: 'Kova calls restaurants, services, and businesses on your behalf -- so you never have to sit on hold again.' },
+  { iconType: 'email', title: 'Email Management', desc: 'Sends and drafts emails for you. Just tell Kova what to say and who to send it to.' },
+  { iconType: 'search', title: 'Web Research', desc: 'Finds information, prices, reviews, and availability across the web in seconds.' },
+  { iconType: 'calendar', title: 'Calendar Management', desc: 'Schedules events, sets reminders, and keeps your calendar organized hands-free.' },
+  { iconType: 'restaurant', title: 'Restaurant Bookings', desc: 'Reserves tables at your favorite spots via OpenTable, Resy, or by calling directly.' },
+  { iconType: 'travel', title: 'Travel Planning', desc: 'Searches flights, books hotels, and builds full itineraries tailored to your preferences.' },
 ];
 
 const STEPS = [
@@ -906,7 +923,7 @@ export default function Landing() {
               onMouseEnter={() => setHoveredFeature(i)}
               onMouseLeave={() => setHoveredFeature(null)}
             >
-              <div style={L.featIconWrap}>{f.icon}</div>
+              <div style={L.featIconWrap}><FeatureIcon type={f.iconType} /></div>
               <div>
                 <div style={L.featTitle}>{f.title}</div>
                 <div style={L.featDesc}>{f.desc}</div>
@@ -1034,7 +1051,7 @@ export default function Landing() {
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.3)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
           >
-            <div style={L.contactIcon}>{'\uD83D\uDCAC'}</div>
+            <div style={L.contactIcon}><AppIcon name="whatsapp" size={28} /></div>
             <div style={L.contactTitle}>WhatsApp</div>
             <div style={L.contactDesc}>Text your dedicated Kova number on WhatsApp. Available 24/7.</div>
             <div style={L.contactNumber}>+1 (978) 558-8477</div>
@@ -1044,7 +1061,7 @@ export default function Landing() {
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.3)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
           >
-            <div style={L.contactIcon}>{'\uD83D\uDCDE'}</div>
+            <div style={L.contactIcon}><svg width="28" height="28" viewBox="0 0 24 24" fill="rgba(102,126,234,0.9)"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.02l-2.2 2.19z"/></svg></div>
             <div style={L.contactTitle}>Phone</div>
             <div style={L.contactDesc}>Call your Kova number for voice conversations. AI-powered, always ready.</div>
             <div style={L.contactNumber}>+1 (978) 558-8477</div>

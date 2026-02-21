@@ -236,7 +236,7 @@ export default function CustomerDetail() {
             <div style={S.infoVal}>Kova — $25/mo</div>
             {customer.subscription_status !== 'active' ? (
               <button style={S.subscribeBtn} onClick={handleSubscribe}>
-                💳 Send Payment Link
+                Send Payment Link
               </button>
             ) : (
               <button style={S.actionBtn} onClick={handlePortal}>
@@ -261,7 +261,7 @@ export default function CustomerDetail() {
             flight, Kova already knows their dietary needs, loyalty numbers, and preferences — no need to ask.
           </div>
 
-          {saved && <div style={S.successBox}>✅ Profile saved and synced to Kova</div>}
+          {saved && <div style={S.successBox}>Profile saved and synced to Kova</div>}
 
           {/* Personal Info */}
           <div style={S.card}>
@@ -417,7 +417,7 @@ export default function CustomerDetail() {
 
           <div style={S.saveRow}>
             <button style={S.saveBtn} onClick={saveProfile} disabled={saving}>
-              {saving ? 'Saving...' : '💾 Save & Sync to Kova'}
+              {saving ? 'Saving...' : 'Save & Sync to Kova'}
             </button>
           </div>
         </div>

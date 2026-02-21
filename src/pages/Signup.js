@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import AppIcon from '../components/AppIcon';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const SOCIAL_PROVIDERS = [
-  { id: 'google',    label: 'Google',    color: '#4285F4', icon: 'G' },
-  { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f' },
-  { id: 'apple',     label: 'Apple',     color: '#000000', icon: '\u{F8FF}' },
-  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in' },
-  { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: 'IG' },
-  { id: 'tiktok',    label: 'TikTok',    color: '#000000', icon: 'TT' },
+  { id: 'google',    label: 'Google',    color: '#4285F4' },
+  { id: 'facebook',  label: 'Facebook',  color: '#1877F2' },
+  { id: 'apple',     label: 'Apple',     color: '#000000' },
+  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2' },
+  { id: 'instagram', label: 'Instagram', color: '#E4405F' },
+  { id: 'tiktok',    label: 'TikTok',    color: '#000000' },
 ];
 
 const AI_NAMES = [
-  { name: 'Kova (Male)',   emoji: '\uD83E\uDD35', tagline: 'Confident & professional', color: '#667eea' },
-  { name: 'Kova (Female)', emoji: '\uD83D\uDC69\u200D\uD83D\uDCBC', tagline: 'Warm & polished',         color: '#a855f7' },
+  { name: 'Kova (Male)',   avatar: 'M', tagline: 'Confident & professional', color: '#667eea' },
+  { name: 'Kova (Female)', avatar: 'F', tagline: 'Warm & polished',         color: '#a855f7' },
 ];
 
 const S = {
@@ -238,7 +239,7 @@ export default function Signup() {
             {SOCIAL_PROVIDERS.map(p => (
               <div key={p.id} style={S.socialBtn(p.color)}
                 onClick={() => { window.location.href = `${API_URL}/api/auth/social/${p.id}?signup=true`; }}>
-                <div style={S.socialIcon(p.color)}>{p.icon}</div>
+                <div style={S.socialIcon(p.color)}><AppIcon name={p.id} size={14} /></div>
                 <span>{p.label}</span>
               </div>
             ))}
@@ -330,7 +331,7 @@ export default function Signup() {
               style={S.nameCard(assistantName === ai.name && !isCustom, ai.color)}
               onClick={() => selectName(ai.name)}
             >
-              <div style={S.nameEmoji}>{ai.emoji}</div>
+              <div style={S.nameEmoji}>{ai.avatar}</div>
               <div style={S.nameName}>{ai.name}</div>
               <div style={S.nameTag}>{ai.tagline}</div>
             </div>
@@ -339,7 +340,7 @@ export default function Signup() {
             style={S.nameCard(isCustom, '#9ca3af')}
             onClick={selectCustom}
           >
-            <div style={S.nameEmoji}>{'\u270F\uFE0F'}</div>
+            <div style={S.nameEmoji}>{'+'}</div>
             <div style={S.nameName}>Other</div>
             <div style={S.nameTag}>Choose your own</div>
           </div>

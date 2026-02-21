@@ -649,7 +649,7 @@ export default function Portal() {
                   We're building something special for you.
                 </div>
                 <div style={S.voiceComingSoon}>
-                  <span style={S.voiceComingSoonIcon}>&#127908;</span>
+                  <span style={S.voiceComingSoonIcon}><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg></span>
                   <div style={S.voiceComingSoonText}>Voice Cloning Coming Soon!</div>
                   <div style={S.voiceComingSoonSub}>
                     Soon you'll be able to clone your voice so Kova sounds just like you when making calls on your behalf. Stay tuned!
@@ -839,9 +839,9 @@ export default function Portal() {
               backdropFilter: 'blur(12px)',
             }}>
               {[
-                { label: 'Messages', used: usage.whatsapp.used, limit: usage.whatsapp.limit, icon: '\uD83D\uDCAC' },
-                { label: 'Call Minutes', used: usage.calls.used, limit: usage.calls.limit, icon: '\uD83D\uDCDE' },
-                { label: 'Web Tasks', used: usage.webTasks.used, limit: usage.webTasks.limit, icon: '\uD83C\uDF10' },
+                { label: 'Messages', used: usage.whatsapp.used, limit: usage.whatsapp.limit, icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg> },
+                { label: 'Call Minutes', used: usage.calls.used, limit: usage.calls.limit, icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.02l-2.2 2.19z"/></svg> },
+                { label: 'Web Tasks', used: usage.webTasks.used, limit: usage.webTasks.limit, icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> },
               ].map((item, i) => {
                 const pct = Math.min(100, (item.used / item.limit) * 100);
                 const isHigh = pct >= 80;
@@ -927,7 +927,7 @@ export default function Portal() {
             onMouseEnter={() => setHoveredAction('activity')}
             onMouseLeave={() => setHoveredAction(null)}
           >
-            <span style={S.actionIcon}>&#128202;</span>
+            <span style={S.actionIcon}><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></span>
             <div style={S.actionTitle}>Activity Log</div>
             <div style={S.actionSub}>Recent messages and actions</div>
           </Link>
@@ -941,7 +941,7 @@ export default function Portal() {
             tabIndex={0}
             onKeyDown={e => e.key === 'Enter' && openBilling()}
           >
-            <span style={S.actionIcon}>&#128179;</span>
+            <span style={S.actionIcon}><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></span>
             <div style={S.actionTitle}>
               {billingLoading ? 'Opening...' : 'Manage Billing'}
             </div>
@@ -954,7 +954,7 @@ export default function Portal() {
             onMouseEnter={() => setHoveredAction('apps')}
             onMouseLeave={() => setHoveredAction(null)}
           >
-            <span style={S.actionIcon}>&#128279;</span>
+            <span style={S.actionIcon}><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></span>
             <div style={S.actionTitle}>Connected Apps</div>
             <div style={S.actionSub}>Manage your integrations</div>
           </Link>

@@ -119,7 +119,7 @@ export default function SignupSuccess() {
     return (
       <div style={S.page}>
         <div style={S.card}>
-          <div style={S.icon}>⏳</div>
+          <div style={S.icon}><svg width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg></div>
           <div style={S.title}>Setting things up...</div>
           <div style={S.loadingText}>Confirming your payment and setting up your Kova assistant</div>
         </div>
@@ -131,7 +131,7 @@ export default function SignupSuccess() {
     return (
       <div style={S.page}>
         <div style={S.card}>
-          <div style={S.icon}>⚠️</div>
+          <div style={S.icon}><svg width="48" height="48" viewBox="0 0 24 24" fill="#ffb464"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
           <div style={S.title}>Something went wrong</div>
           <div style={S.errorText}>
             We couldn't confirm your signup. If you were charged, please contact support — we'll sort it out.
@@ -150,7 +150,7 @@ export default function SignupSuccess() {
   return (
     <div style={S.page}>
       <div style={S.card}>
-        <div style={S.icon}>🎉</div>
+        <div style={S.icon}><svg width="48" height="48" viewBox="0 0 24 24" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
         <div style={S.title}>Welcome to Kova!</div>
         <div style={S.sub}>
           Your account is set up and your personal AI is{' '}
@@ -159,7 +159,7 @@ export default function SignupSuccess() {
 
         {status === 'pending' && (
           <div style={S.statusBox}>
-            ⏳ Your Kova agent is being deployed. This takes about 30 seconds.
+            Your Kova agent is being deployed. This takes about 30 seconds.
             This page will update automatically.
           </div>
         )}

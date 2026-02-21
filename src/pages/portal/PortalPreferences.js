@@ -1,127 +1,128 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import customerApi from '../../lib/customerApi';
+import AppIcon from '../../components/AppIcon';
 
 const APP_CATEGORIES = [
   { category: 'Ride Sharing', apps: [
-    { id: 'uber', name: 'Uber', icon: '\u{1F697}' },
-    { id: 'lyft', name: 'Lyft', icon: '\u{1F699}' },
-    { id: 'turo', name: 'Turo', icon: '\u{1F3CE}\uFE0F' },
+    { id: 'uber', name: 'Uber' },
+    { id: 'lyft', name: 'Lyft' },
+    { id: 'turo', name: 'Turo' },
   ]},
   { category: 'Food Delivery', apps: [
-    { id: 'doordash', name: 'DoorDash', icon: '\u{1F354}' },
-    { id: 'ubereats', name: 'Uber Eats', icon: '\u{1F37D}\uFE0F' },
-    { id: 'grubhub', name: 'Grubhub', icon: '\u{1F961}' },
-    { id: 'postmates', name: 'Postmates', icon: '\u{1F4E6}' },
-    { id: 'instacart', name: 'Instacart', icon: '\u{1F6D2}' },
+    { id: 'doordash', name: 'DoorDash' },
+    { id: 'ubereats', name: 'Uber Eats' },
+    { id: 'grubhub', name: 'Grubhub' },
+    { id: 'postmates', name: 'Postmates' },
+    { id: 'instacart', name: 'Instacart' },
   ]},
   { category: 'Restaurants', apps: [
-    { id: 'opentable', name: 'OpenTable', icon: '\u{1F377}' },
-    { id: 'resy', name: 'Resy', icon: '\u{1F374}' },
-    { id: 'yelp', name: 'Yelp', icon: '\u2B50' },
+    { id: 'opentable', name: 'OpenTable' },
+    { id: 'resy', name: 'Resy' },
+    { id: 'yelp', name: 'Yelp' },
   ]},
   { category: 'Travel', apps: [
-    { id: 'airbnb', name: 'Airbnb', icon: '\u{1F3E0}' },
-    { id: 'bookingcom', name: 'Booking.com', icon: '\u{1F3E8}' },
-    { id: 'expedia', name: 'Expedia', icon: '\u2708\uFE0F' },
-    { id: 'hotelscom', name: 'Hotels.com', icon: '\u{1F6CF}\uFE0F' },
-    { id: 'vrbo', name: 'VRBO', icon: '\u{1F3E1}' },
-    { id: 'kayak', name: 'Kayak', icon: '\u{1F50D}' },
+    { id: 'airbnb', name: 'Airbnb' },
+    { id: 'bookingcom', name: 'Booking.com' },
+    { id: 'expedia', name: 'Expedia' },
+    { id: 'hotelscom', name: 'Hotels.com' },
+    { id: 'vrbo', name: 'VRBO' },
+    { id: 'kayak', name: 'Kayak' },
   ]},
   { category: 'Airlines', apps: [
-    { id: 'delta', name: 'Delta', icon: '\u2708\uFE0F' },
-    { id: 'united', name: 'United', icon: '\u{1F6EB}' },
-    { id: 'american', name: 'American Airlines', icon: '\u{1F985}' },
-    { id: 'southwest', name: 'Southwest', icon: '\u2764\uFE0F' },
-    { id: 'jetblue', name: 'JetBlue', icon: '\u{1F499}' },
-    { id: 'spirit', name: 'Spirit', icon: '\u{1F49B}' },
-    { id: 'frontier', name: 'Frontier', icon: '\u{1F7E2}' },
+    { id: 'delta', name: 'Delta' },
+    { id: 'united', name: 'United' },
+    { id: 'american', name: 'American Airlines' },
+    { id: 'southwest', name: 'Southwest' },
+    { id: 'jetblue', name: 'JetBlue' },
+    { id: 'spirit', name: 'Spirit' },
+    { id: 'frontier', name: 'Frontier' },
   ]},
   { category: 'Hotels', apps: [
-    { id: 'marriott', name: 'Marriott', icon: '\u{1F3E8}' },
-    { id: 'hilton', name: 'Hilton', icon: '\u{1F31F}' },
-    { id: 'hyatt', name: 'Hyatt', icon: '\u{1F48E}' },
-    { id: 'ihg', name: 'IHG', icon: '\u{1F3E2}' },
-    { id: 'wyndham', name: 'Wyndham', icon: '\u{1F511}' },
-    { id: 'bestwestern', name: 'Best Western', icon: '\u{1F451}' },
+    { id: 'marriott', name: 'Marriott' },
+    { id: 'hilton', name: 'Hilton' },
+    { id: 'hyatt', name: 'Hyatt' },
+    { id: 'ihg', name: 'IHG' },
+    { id: 'wyndham', name: 'Wyndham' },
+    { id: 'bestwestern', name: 'Best Western' },
   ]},
   { category: 'Calendar', apps: [
-    { id: 'google_calendar', name: 'Google Calendar', icon: '\u{1F4C5}' },
-    { id: 'outlook_calendar', name: 'Outlook Calendar', icon: '\u{1F4C6}' },
-    { id: 'apple_calendar', name: 'Apple Calendar', icon: '\u{1F34E}' },
+    { id: 'google_calendar', name: 'Google Calendar' },
+    { id: 'outlook_calendar', name: 'Outlook Calendar' },
+    { id: 'apple_calendar', name: 'Apple Calendar' },
   ]},
   { category: 'Email', apps: [
-    { id: 'gmail', name: 'Gmail', icon: '\u2709\uFE0F' },
-    { id: 'outlook', name: 'Outlook', icon: '\u{1F4E7}' },
-    { id: 'yahoo_mail', name: 'Yahoo Mail', icon: '\u{1F4E8}' },
+    { id: 'gmail', name: 'Gmail' },
+    { id: 'outlook', name: 'Outlook' },
+    { id: 'yahoo_mail', name: 'Yahoo Mail' },
   ]},
   { category: 'Shopping', apps: [
-    { id: 'amazon', name: 'Amazon', icon: '\u{1F4E6}' },
-    { id: 'walmart', name: 'Walmart', icon: '\u{1F6D2}' },
-    { id: 'target', name: 'Target', icon: '\u{1F3AF}' },
-    { id: 'costco', name: 'Costco', icon: '\u{1F3EA}' },
-    { id: 'wholefoods', name: 'Whole Foods', icon: '\u{1F951}' },
-    { id: 'ebay', name: 'eBay', icon: '\u{1F3F7}\uFE0F' },
+    { id: 'amazon', name: 'Amazon' },
+    { id: 'walmart', name: 'Walmart' },
+    { id: 'target', name: 'Target' },
+    { id: 'costco', name: 'Costco' },
+    { id: 'wholefoods', name: 'Whole Foods' },
+    { id: 'ebay', name: 'eBay' },
   ]},
   { category: 'Entertainment', apps: [
-    { id: 'spotify', name: 'Spotify', icon: '\u{1F3B5}' },
-    { id: 'netflix', name: 'Netflix', icon: '\u{1F3AC}' },
-    { id: 'hulu', name: 'Hulu', icon: '\u{1F4FA}' },
-    { id: 'disneyplus', name: 'Disney+', icon: '\u{1F3F0}' },
-    { id: 'youtube', name: 'YouTube', icon: '\u25B6\uFE0F' },
-    { id: 'applemusic', name: 'Apple Music', icon: '\u{1F3B6}' },
-    { id: 'ticketmaster', name: 'Ticketmaster', icon: '\u{1F3AB}' },
-    { id: 'stubhub', name: 'StubHub', icon: '\u{1F39F}\uFE0F' },
-    { id: 'fandango', name: 'Fandango', icon: '\u{1F3AC}' },
+    { id: 'spotify', name: 'Spotify' },
+    { id: 'netflix', name: 'Netflix' },
+    { id: 'hulu', name: 'Hulu' },
+    { id: 'disneyplus', name: 'Disney+' },
+    { id: 'youtube', name: 'YouTube' },
+    { id: 'applemusic', name: 'Apple Music' },
+    { id: 'ticketmaster', name: 'Ticketmaster' },
+    { id: 'stubhub', name: 'StubHub' },
+    { id: 'fandango', name: 'Fandango' },
   ]},
   { category: 'Productivity', apps: [
-    { id: 'notion', name: 'Notion', icon: '\u{1F4DD}' },
-    { id: 'slack', name: 'Slack', icon: '\u{1F4AC}' },
-    { id: 'trello', name: 'Trello', icon: '\u{1F4CB}' },
-    { id: 'asana', name: 'Asana', icon: '\u2705' },
-    { id: 'mondaycom', name: 'Monday.com', icon: '\u{1F4CA}' },
-    { id: 'googledrive', name: 'Google Drive', icon: '\u{1F4BE}' },
-    { id: 'dropbox', name: 'Dropbox', icon: '\u{1F4C1}' },
+    { id: 'notion', name: 'Notion' },
+    { id: 'slack', name: 'Slack' },
+    { id: 'trello', name: 'Trello' },
+    { id: 'asana', name: 'Asana' },
+    { id: 'mondaycom', name: 'Monday.com' },
+    { id: 'googledrive', name: 'Google Drive' },
+    { id: 'dropbox', name: 'Dropbox' },
   ]},
   { category: 'Finance', apps: [
-    { id: 'venmo', name: 'Venmo', icon: '\u{1F4B8}' },
-    { id: 'paypal', name: 'PayPal', icon: '\u{1F4B0}' },
-    { id: 'cashapp', name: 'Cash App', icon: '\u{1F4B5}' },
-    { id: 'zelle', name: 'Zelle', icon: '\u26A1' },
-    { id: 'bankofamerica', name: 'Bank of America', icon: '\u{1F3E6}' },
-    { id: 'chase', name: 'Chase', icon: '\u{1F4B3}' },
-    { id: 'wellsfargo', name: 'Wells Fargo', icon: '\u{1F3E7}' },
+    { id: 'venmo', name: 'Venmo' },
+    { id: 'paypal', name: 'PayPal' },
+    { id: 'cashapp', name: 'Cash App' },
+    { id: 'zelle', name: 'Zelle' },
+    { id: 'bankofamerica', name: 'Bank of America' },
+    { id: 'chase', name: 'Chase' },
+    { id: 'wellsfargo', name: 'Wells Fargo' },
   ]},
   { category: 'Health', apps: [
-    { id: 'myfitnesspal', name: 'MyFitnessPal', icon: '\u{1F4AA}' },
-    { id: 'apple_health', name: 'Apple Health', icon: '\u2764\uFE0F' },
-    { id: 'peloton', name: 'Peloton', icon: '\u{1F6B4}' },
-    { id: 'strava', name: 'Strava', icon: '\u{1F3C3}' },
-    { id: 'fitbit', name: 'Fitbit', icon: '\u231A' },
+    { id: 'myfitnesspal', name: 'MyFitnessPal' },
+    { id: 'apple_health', name: 'Apple Health' },
+    { id: 'peloton', name: 'Peloton' },
+    { id: 'strava', name: 'Strava' },
+    { id: 'fitbit', name: 'Fitbit' },
   ]},
   { category: 'Social', apps: [
-    { id: 'instagram', name: 'Instagram', icon: '\u{1F4F8}' },
-    { id: 'facebook', name: 'Facebook', icon: '\u{1F465}' },
-    { id: 'linkedin', name: 'LinkedIn', icon: '\u{1F4BC}' },
-    { id: 'twitter', name: 'Twitter/X', icon: '\u{1F426}' },
-    { id: 'tiktok', name: 'TikTok', icon: '\u{1F3B5}' },
-    { id: 'snapchat', name: 'Snapchat', icon: '\u{1F47B}' },
-    { id: 'pinterest', name: 'Pinterest', icon: '\u{1F4CC}' },
-    { id: 'reddit', name: 'Reddit', icon: '\u{1F916}' },
-    { id: 'whatsapp', name: 'WhatsApp', icon: '\u{1F4AC}' },
-    { id: 'telegram', name: 'Telegram', icon: '\u2708\uFE0F' },
+    { id: 'instagram', name: 'Instagram' },
+    { id: 'facebook', name: 'Facebook' },
+    { id: 'linkedin', name: 'LinkedIn' },
+    { id: 'twitter', name: 'Twitter/X' },
+    { id: 'tiktok', name: 'TikTok' },
+    { id: 'snapchat', name: 'Snapchat' },
+    { id: 'pinterest', name: 'Pinterest' },
+    { id: 'reddit', name: 'Reddit' },
+    { id: 'whatsapp', name: 'WhatsApp' },
+    { id: 'telegram', name: 'Telegram' },
   ]},
   { category: 'Home Services', apps: [
-    { id: 'taskrabbit', name: 'TaskRabbit', icon: '\u{1F430}' },
-    { id: 'thumbtack', name: 'Thumbtack', icon: '\u{1F4CC}' },
-    { id: 'angi', name: 'Angi', icon: '\u{1F3E0}' },
-    { id: 'nextdoor', name: 'Nextdoor', icon: '\u{1F3D8}\uFE0F' },
+    { id: 'taskrabbit', name: 'TaskRabbit' },
+    { id: 'thumbtack', name: 'Thumbtack' },
+    { id: 'angi', name: 'Angi' },
+    { id: 'nextdoor', name: 'Nextdoor' },
   ]},
   { category: 'Education', apps: [
-    { id: 'coursera', name: 'Coursera', icon: '\u{1F393}' },
-    { id: 'udemy', name: 'Udemy', icon: '\u{1F4DA}' },
-    { id: 'khanacademy', name: 'Khan Academy', icon: '\u{1F392}' },
-    { id: 'classpass', name: 'ClassPass', icon: '\u{1F9D8}' },
+    { id: 'coursera', name: 'Coursera' },
+    { id: 'udemy', name: 'Udemy' },
+    { id: 'khanacademy', name: 'Khan Academy' },
+    { id: 'classpass', name: 'ClassPass' },
   ]},
 ];
 
@@ -1008,7 +1009,7 @@ export default function PortalPreferences() {
 
           {/* Search Bar */}
           <div style={S.searchWrap}>
-            <span style={S.searchIcon}>&#128269;</span>
+            <span style={S.searchIcon}><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
             <input
               style={S.searchInput}
               type="text"
@@ -1021,7 +1022,7 @@ export default function PortalPreferences() {
           {/* Category Sections */}
           {filteredCategories.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.3)' }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px' }}>&#128269;</div>
+              <div style={{ marginBottom: '12px' }}><svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,0.3)"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
               <div style={{ fontSize: '14px' }}>No apps found matching "{appSearch}"</div>
             </div>
           )}
@@ -1073,7 +1074,7 @@ export default function PortalPreferences() {
                             e.currentTarget.style.transform = 'translateY(0)';
                           }}
                         >
-                          <div style={S.appCardIcon}>{app.icon}</div>
+                          <div style={S.appCardIcon}><AppIcon name={app.name} size={22} /></div>
                           <div style={S.appCardInfo}>
                             <div style={S.appCardName}>{app.name}</div>
                             {isConnected && (
@@ -1118,7 +1119,7 @@ export default function PortalPreferences() {
               &#10005;
             </button>
 
-            <div style={S.modalIconWrap}>{appModal.icon}</div>
+            <div style={S.modalIconWrap}><AppIcon name={appModal.name} size={36} /></div>
             <div style={S.modalTitle}>
               {connectedApps[appModal.id] ? appModal.name : `Connect ${appModal.name}`}
             </div>
@@ -1130,7 +1131,7 @@ export default function PortalPreferences() {
                 </div>
 
                 <div style={S.modalSecurityBadge}>
-                  <span style={{ fontSize: '14px' }}>&#128274;</span>
+                  <span style={{ fontSize: '14px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>
                   <span>Credentials encrypted with AES-256</span>
                 </div>
 
@@ -1227,7 +1228,7 @@ export default function PortalPreferences() {
             </button>
 
             <div style={{ ...S.modalIconWrap, background: 'rgba(124,92,252,0.15)', borderColor: 'rgba(124,92,252,0.25)' }}>
-              <span style={{ fontSize: '28px' }}>&#127908;</span>
+              <span><svg width="28" height="28" viewBox="0 0 24 24" fill="rgba(124,92,252,0.9)"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg></span>
             </div>
             <div style={S.modalTitle}>Voice Cloning</div>
             <div style={S.modalSub}>

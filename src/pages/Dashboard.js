@@ -746,28 +746,28 @@ export default function Dashboard() {
       label: 'Total Customers',
       color: '#1a1a1a',
       iconBg: '#f0f0f5',
-      icon: '\uD83D\uDC65',
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>,
     },
     {
       num: stats.active,
       label: 'Active Subscriptions',
       color: '#2e7d32',
       iconBg: '#e8f5e9',
-      icon: '\u2713',
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#2e7d32"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>,
     },
     {
       num: `$${stats.mrr}`,
       label: 'Monthly Recurring Revenue',
       color: '#1565c0',
       iconBg: '#e3f2fd',
-      icon: '$',
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#1565c0"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>,
     },
     {
       num: stats.agents,
       label: 'AI Agents Live',
       color: '#6a1b9a',
       iconBg: '#f3e5f5',
-      icon: '\u26A1',
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#6a1b9a"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>,
     },
   ];
 
