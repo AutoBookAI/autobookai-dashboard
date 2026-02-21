@@ -530,6 +530,56 @@ const L = {
     paddingRight: '40px',
   },
 
+  // ── Contact ──────────────────────────────────────────────────────────────
+  contactBg: {
+    background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%)',
+    padding: '120px 24px',
+  },
+  contactGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '32px',
+    maxWidth: '720px',
+    margin: '0 auto',
+  },
+  contactCard: {
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '20px',
+    padding: '40px 32px',
+    textAlign: 'center',
+    backdropFilter: 'blur(12px)',
+    transition: 'transform 0.3s ease, border-color 0.3s ease',
+  },
+  contactIcon: {
+    fontSize: '40px',
+    marginBottom: '16px',
+  },
+  contactTitle: {
+    fontFamily: "'Playfair Display', serif",
+    fontWeight: 600,
+    fontSize: '22px',
+    marginBottom: '8px',
+    color: '#fff',
+  },
+  contactDesc: {
+    color: 'rgba(255,255,255,0.45)',
+    fontSize: '14px',
+    lineHeight: 1.65,
+    marginBottom: '20px',
+  },
+  contactNumber: {
+    display: 'inline-block',
+    background: 'rgba(102,126,234,0.12)',
+    border: '1px solid rgba(102,126,234,0.25)',
+    borderRadius: '12px',
+    padding: '12px 24px',
+    color: '#a0b4f7',
+    fontSize: '18px',
+    fontWeight: 600,
+    letterSpacing: '0.5px',
+  },
+
   // ── Footer ──────────────────────────────────────────────────────────────
   footer: {
     borderTop: '1px solid rgba(255,255,255,0.06)',
@@ -720,6 +770,7 @@ export default function Landing() {
           <span style={L.navLink} onClick={() => scrollTo('features')}>Features</span>
           <span style={L.navLink} onClick={() => scrollTo('pricing')}>Pricing</span>
           <span style={L.navLink} onClick={() => scrollTo('faq')}>FAQ</span>
+          <span style={L.navLink} onClick={() => scrollTo('contact')}>Contact</span>
           <span style={L.navLink} onClick={() => navigate('/portal/login')}>Sign In</span>
           <button style={L.navCta} onClick={() => navigate('/signup')}>
             Get Started
@@ -1001,6 +1052,39 @@ export default function Landing() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* ── Contact ────────────────────────────────────────────────────────── */}
+      <div style={L.contactBg} id="contact">
+        <div style={{ textAlign: 'center' }}>
+          <div style={L.sectionLabel}>Contact</div>
+        </div>
+        <h2 style={{ ...L.sectionTitle, marginBottom: '16px' }}>Reach Kova Anytime</h2>
+        <p style={L.sectionSub}>
+          Two ways to connect with your AI assistant
+        </p>
+        <div style={L.contactGrid}>
+          <div
+            style={L.contactCard}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.3)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+          >
+            <div style={L.contactIcon}>{'\uD83D\uDCAC'}</div>
+            <div style={L.contactTitle}>WhatsApp</div>
+            <div style={L.contactDesc}>Text your dedicated Kova number on WhatsApp. Available 24/7.</div>
+            <div style={L.contactNumber}>+1 (978) 558-8477</div>
+          </div>
+          <div
+            style={L.contactCard}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.3)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+          >
+            <div style={L.contactIcon}>{'\uD83D\uDCDE'}</div>
+            <div style={L.contactTitle}>Phone</div>
+            <div style={L.contactDesc}>Call your Kova number for voice conversations. AI-powered, always ready.</div>
+            <div style={L.contactNumber}>+1 (978) 558-8477</div>
+          </div>
         </div>
       </div>
 
