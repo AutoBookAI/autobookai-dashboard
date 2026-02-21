@@ -366,6 +366,7 @@ export default function Portal() {
   const [hoveredAction, setHoveredAction] = useState(null);
   const [hoveredStat, setHoveredStat] = useState(null);
   const [billingLoading, setBillingLoading] = useState(false);
+  const [webTasks, setWebTasks] = useState([]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -411,8 +412,12 @@ export default function Portal() {
       .then(r => setApps(Array.isArray(r.data) ? r.data : []))
       .catch(() => {});
 
-    customerApi.get('/api/customer/activity?page=1&limit=5')
-      .then(r => setActivities(r.data.activities || []))
+    customerApi.get('/api/customer/activity?page=1&limit=20')
+      .then(r => {
+        const all = r.data.activities || [];
+        setActivities(all.slice(0, 5));
+        setWebTasks(all.filter(a => a.event_type === 'web_task' || a.event_type === 'openclaw_task').slice(0, 5));
+      })
       .catch(() => {});
 
     customerApi.get('/api/customer/usage')
@@ -958,6 +963,75 @@ export default function Portal() {
             <div style={S.actionTitle}>Connected Apps</div>
             <div style={S.actionSub}>Manage your integrations</div>
           </Link>
+        </div>
+
+        {/* Web Actions */}
+        <div style={S.activitySection}>
+          <div style={S.activityHeader}>
+            <div style={S.sectionTitle}>Web Actions</div>
+            {webTasks.length > 0 && (
+              <Link
+                to="/portal/activity"
+                style={S.viewAllLink}
+                onMouseEnter={e => { e.currentTarget.style.color = '#c4b5fd'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#a78bfa'; }}
+              >
+                View all &rarr;
+              </Link>
+            )}
+          </div>
+          <div style={S.activityCard}>
+            {webTasks.length === 0 ? (
+              <div style={S.activityEmpty}>
+                <div style={{ marginBottom: '8px' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="rgba(255,255,255,0.2)">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  </svg>
+                </div>
+                No web actions yet. Ask Kova to browse the web or complete tasks on your behalf.
+              </div>
+            ) : (
+              webTasks.map((t, i) => {
+                const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata || '{}') : (t.metadata || {});
+                const status = meta.status || 'completed';
+                const statusColor = status === 'completed' ? '#34d399' : status === 'failed' ? '#f87171' : '#fbbf24';
+                return (
+                  <div
+                    key={t.id || i}
+                    style={i < webTasks.length - 1 ? S.activityRow : S.activityRowLast}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div style={{ ...S.activityLeft, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)" style={{ flexShrink: 0 }}>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                      </svg>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={S.activityType}>{t.description || 'Web task'}</div>
+                        {meta.result && (
+                          <div style={S.activityDesc}>{meta.result}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        fontSize: '10px', fontWeight: 700, textTransform: 'uppercase',
+                        color: statusColor, letterSpacing: '0.5px',
+                      }}>
+                        <span style={{
+                          width: '6px', height: '6px', borderRadius: '50%',
+                          background: statusColor,
+                        }} />
+                        {status}
+                      </span>
+                      <div style={S.activityTime}>{formatTime(t.created_at)}</div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
 
         {/* Recent Activity */}

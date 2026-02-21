@@ -992,8 +992,8 @@ export default function PortalPreferences() {
             <div>
               <h3 style={S.sectionTitle}>Connected Apps</h3>
               <p style={S.sectionSub}>
-                Connect your accounts so Kova can book, order, and manage things on your behalf.
-                Credentials are encrypted at rest.
+                Connect your accounts so Kova can log in and take actions on your behalf.
+                Your credentials are encrypted with AES-256.
               </p>
             </div>
             <div style={{
