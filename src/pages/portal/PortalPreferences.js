@@ -441,7 +441,7 @@ export default function PortalPreferences() {
 
     customerApi.get('/api/customer/apps').then(r => {
       const map = {};
-      (r.data || []).forEach(a => { map[a.app_name] = a.id; });
+      (r.data || []).forEach(a => { map[a.app_name] = a.app_name; });
       setConnectedApps(map);
     }).catch(() => {});
 
@@ -524,22 +524,27 @@ export default function PortalPreferences() {
     if (!appCreds.username || !appCreds.password) return;
     setAppSaving(true);
     try {
-      const r = await customerApi.post('/api/customer/apps', {
+      // Find the category for this app
+      const cat = APP_CATEGORIES.find(c => c.apps.some(a => a.id === appModal.id));
+      await customerApi.post('/api/customer/apps/connect', {
         app_name: appModal.id,
-        credentials: { username: appCreds.username, password: appCreds.password },
+        category: cat?.category || null,
+        username: appCreds.username,
+        password: appCreds.password,
       });
-      setConnectedApps(prev => ({ ...prev, [appModal.id]: r.data?.id || appModal.id }));
+      setConnectedApps(prev => ({ ...prev, [appModal.id]: appModal.id }));
       setAppModal(null);
       setAppCreds({ username: '', password: '' });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch {
       alert('Failed to connect app');
     } finally { setAppSaving(false); }
   }
 
   async function disconnectApp(appId) {
-    const recordId = connectedApps[appId];
     try {
-      await customerApi.delete(`/api/customer/apps/${recordId}`);
+      await customerApi.delete(`/api/customer/apps/${appId}/disconnect`);
       setConnectedApps(prev => { const n = { ...prev }; delete n[appId]; return n; });
       setAppModal(null);
     } catch {
