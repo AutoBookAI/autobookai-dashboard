@@ -184,6 +184,7 @@ export default function PortalLogin() {
           </button>
         </form>
 
+        <Link to="/portal/reset-password" style={{ ...C.link, marginTop: '16px' }}>Forgot your password?</Link>
         <Link to="/signup" style={C.link}>Don't have an account? Sign up</Link>
       </div>
     </div>

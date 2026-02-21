@@ -10,6 +10,7 @@ import PortalLogin from './pages/portal/PortalLogin';
 import Portal from './pages/portal/Portal';
 import PortalPreferences from './pages/portal/PortalPreferences';
 import PortalActivity from './pages/portal/PortalActivity';
+import ResetPassword from './pages/portal/ResetPassword';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 
@@ -79,7 +80,8 @@ export default function App() {
         <Route path="/customers/:id"  element={<Guard><CustomerDetail /></Guard>} />
 
         {/* Customer portal */}
-        <Route path="/portal/login"       element={<PortalLogin />} />
+        <Route path="/portal/login"           element={<PortalLogin />} />
+        <Route path="/portal/reset-password"  element={<ResetPassword />} />
         <Route path="/portal"             element={<CustomerGuard><Portal /></CustomerGuard>} />
         <Route path="/portal/preferences" element={<CustomerGuard><PortalPreferences /></CustomerGuard>} />
         <Route path="/portal/activity"    element={<CustomerGuard><PortalActivity /></CustomerGuard>} />
