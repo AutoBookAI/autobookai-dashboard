@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
-const PLAN_PRICES = { assistant: 49.99, pro: 149.99 };
+const PLAN_PRICE = 25;
 
 /* ── Inline Styles ─────────────────────────────────────────────────── */
 const G = {
@@ -568,8 +568,8 @@ function agentLabel(s) {
   return 'Pending';
 }
 
-function planLabel(p) {
-  return p === 'pro' ? 'Pro' : 'Standard';
+function planLabel() {
+  return 'Active';
 }
 
 /* ── Component ──────────────────────────────────────────────────────── */
@@ -578,7 +578,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({ name: '', email: '', whatsapp_from: '', plan: 'assistant' });
+  const [form, setForm] = useState({ name: '', email: '', whatsapp_from: '' });
   const [search, setSearch] = useState('');
   const [sortCol, setSortCol] = useState('name');
   const [sortDir, setSortDir] = useState('asc');
@@ -636,7 +636,7 @@ export default function Dashboard() {
     try {
       await api.post('/api/customers', form);
       setModal(false);
-      setForm({ name: '', email: '', whatsapp_from: '', plan: 'assistant' });
+      setForm({ name: '', email: '', whatsapp_from: '' });
       load();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create client');
@@ -715,7 +715,7 @@ export default function Dashboard() {
     return {
       total: customers.length,
       active: active.length,
-      mrr: active.reduce((sum, c) => sum + (PLAN_PRICES[c.plan] || 49.99), 0).toFixed(2),
+      mrr: (active.length * PLAN_PRICE).toFixed(2),
       agents: customers.filter(c => c.openclaw_status === 'active').length,
     };
   }, [customers]);
@@ -926,7 +926,7 @@ export default function Dashboard() {
                       <div>
                         <div style={G.mobileCardLabel}>Price</div>
                         <span style={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>
-                          ${PLAN_PRICES[c.plan] || 49.99}/mo
+                          ${PLAN_PRICE}/mo
                         </span>
                       </div>
                     </div>
@@ -1092,16 +1092,6 @@ export default function Dashboard() {
                 onFocus={e => { e.target.style.borderColor = '#667eea'; }}
                 onBlur={e => { e.target.style.borderColor = '#e5e0d8'; }}
               />
-
-              <label style={G.label}>Plan</label>
-              <select
-                style={G.select}
-                value={form.plan}
-                onChange={e => setForm(f => ({ ...f, plan: e.target.value }))}
-              >
-                <option value="assistant">Kova Standard -- $49.99/month</option>
-                <option value="pro">Kova Pro -- $149.99/month</option>
-              </select>
 
               <div style={G.infoBox}>
                 After creating the client, visit their profile to configure preferences such as

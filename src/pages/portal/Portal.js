@@ -361,6 +361,7 @@ export default function Portal() {
   const [me, setMe] = useState(null);
   const [apps, setApps] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [usage, setUsage] = useState(null);
   const [error, setError] = useState(null);
   const [hoveredAction, setHoveredAction] = useState(null);
   const [hoveredStat, setHoveredStat] = useState(null);
@@ -412,6 +413,10 @@ export default function Portal() {
 
     customerApi.get('/api/customer/activity?page=1&limit=5')
       .then(r => setActivities(r.data.activities || []))
+      .catch(() => {});
+
+    customerApi.get('/api/customer/usage')
+      .then(r => setUsage(r.data))
       .catch(() => {});
 
     // Check voice onboarding status
@@ -784,20 +789,7 @@ export default function Portal() {
             onMouseEnter={() => setHoveredStat('plan')}
             onMouseLeave={() => setHoveredStat(null)}
           >
-            <div style={S.statLabel}>Plan</div>
-            <div style={S.statValue}>
-              <span style={S.planBadge(me.plan || 'standard')}>
-                {(me.plan || 'standard').charAt(0).toUpperCase() + (me.plan || 'standard').slice(1)}
-              </span>
-            </div>
-          </div>
-
-          <div
-            style={statCardStyle('messages')}
-            onMouseEnter={() => setHoveredStat('messages')}
-            onMouseLeave={() => setHoveredStat(null)}
-          >
-            <div style={S.statLabel}>Messages Today</div>
+            <div style={S.statLabel}>Subscription</div>
             <div style={S.statValue}>
               <span style={S.statusBadge(isActive)}>
                 <span style={S.statusDot(isActive)} />
@@ -834,6 +826,62 @@ export default function Portal() {
             </div>
           </div>
         </div>
+
+        {/* Usage This Month */}
+        {usage && (
+          <div style={{ marginBottom: '28px' }}>
+            <div style={S.sectionTitle}>Usage This Month</div>
+            <div style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '16px',
+              padding: '24px',
+              backdropFilter: 'blur(12px)',
+            }}>
+              {[
+                { label: 'Messages', used: usage.whatsapp.used, limit: usage.whatsapp.limit, icon: '\uD83D\uDCAC' },
+                { label: 'Call Minutes', used: usage.calls.used, limit: usage.calls.limit, icon: '\uD83D\uDCDE' },
+                { label: 'Web Tasks', used: usage.webTasks.used, limit: usage.webTasks.limit, icon: '\uD83C\uDF10' },
+              ].map((item, i) => {
+                const pct = Math.min(100, (item.used / item.limit) * 100);
+                const isHigh = pct >= 80;
+                return (
+                  <div key={item.label} style={{ marginBottom: i < 2 ? '20px' : 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', fontWeight: 500 }}>
+                        {item.icon} {item.label}
+                      </span>
+                      <span style={{ color: isHigh ? '#f87171' : '#a78bfa', fontSize: '14px', fontWeight: 600 }}>
+                        {item.used}/{item.limit}
+                      </span>
+                    </div>
+                    <div style={{
+                      width: '100%', height: '8px', borderRadius: '4px',
+                      background: 'rgba(255,255,255,0.08)',
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        width: `${pct}%`,
+                        height: '100%',
+                        borderRadius: '4px',
+                        background: isHigh
+                          ? 'linear-gradient(90deg, #f87171, #ef4444)'
+                          : 'linear-gradient(90deg, #7c5cfc, #a78bfa)',
+                        transition: 'width 0.5s ease',
+                      }} />
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{
+                color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '16px',
+                textAlign: 'center',
+              }}>
+                Resets on {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* WhatsApp Card */}
         <div style={S.whatsappCard}>

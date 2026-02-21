@@ -625,7 +625,7 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { num: '1', title: 'Sign Up', desc: 'Create your account and pick the plan that fits your lifestyle. Takes less than 2 minutes.' },
+  { num: '1', title: 'Sign Up', desc: 'Create your account in less than 2 minutes. Just $25/month for your personal AI assistant.' },
   { num: '2', title: 'Connect WhatsApp', desc: 'We assign you a dedicated Kova number. Just text it on WhatsApp to activate your assistant.' },
   { num: '3', title: 'Kova Handles Everything', desc: 'Make requests in plain language. Kova calls, books, emails, and researches -- all for you.' },
 ];
@@ -638,7 +638,7 @@ const TESTIMONIALS = [
     initials: 'SM',
   },
   {
-    quote: "I was skeptical at first, but after Kova booked my entire vacation -- flights, hotels, dinner reservations -- I was completely sold. The Pro plan is worth every penny.",
+    quote: "I was skeptical at first, but after Kova booked my entire vacation -- flights, hotels, dinner reservations -- I was completely sold. Worth every penny.",
     name: 'James R.',
     role: 'Startup Founder',
     initials: 'JR',
@@ -651,23 +651,15 @@ const TESTIMONIALS = [
   },
 ];
 
-const STANDARD_FEATURES = [
-  '30 messages per day',
+const PLAN_FEATURES = [
+  '200 WhatsApp messages per month',
+  '10 call minutes per month',
+  '20 web tasks per month',
   'AI phone calls on your behalf',
   'Email sending & drafting',
   'Web search & research',
   'Calendar management',
   'Preference memory',
-  'Dedicated WhatsApp number',
-];
-
-const PRO_FEATURES = [
-  '100 messages per day',
-  'Everything in Standard',
-  'Browser automation',
-  'Priority support',
-  'Connected apps',
-  'Advanced itineraries',
   'Dedicated WhatsApp number',
 ];
 
@@ -690,7 +682,7 @@ const FAQS = [
   },
   {
     q: 'What can Kova do?',
-    a: 'Kova can make phone calls, send emails, search the web, book restaurants, plan travel, manage your calendar, set reminders, and more. Pro plan members also get browser automation for filling out forms and booking on any website.',
+    a: 'Kova can make phone calls, send emails, search the web, book restaurants, plan travel, manage your calendar, set reminders, and more. Your plan includes 200 messages, 10 call minutes, and 20 web tasks per month.',
   },
 ];
 
@@ -861,7 +853,7 @@ export default function Landing() {
               Sign In
             </button>
           </div>
-          <div style={L.heroPrice}>Starting at $49.99/month &middot; Cancel anytime</div>
+          <div style={L.heroPrice}>$25/month &middot; Cancel anytime</div>
         </div>
       </div>
 
@@ -964,47 +956,19 @@ export default function Landing() {
         </div>
         <h2 style={{ ...L.sectionTitle, marginBottom: '16px' }}>Simple, Transparent Pricing</h2>
         <p style={L.sectionSub}>
-          Two plans, no hidden fees. Choose the one that fits your lifestyle.
+          One plan, no hidden fees. Everything you need in one package.
         </p>
-        <div style={L.priceGrid}>
-          {/* Standard */}
-          <div
-            style={L.priceCard}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-          >
-            <div style={L.pricePlanName}>Standard</div>
-            <div style={L.priceAmount}>$49.99</div>
-            <div style={L.pricePer}>per month</div>
-            <div style={L.priceDivider} />
-            {STANDARD_FEATURES.map((f) => (
-              <div key={f} style={L.priceFeature}>
-                <span style={L.priceCheck}>{'\u2713'}</span>
-                <span>{f}</span>
-              </div>
-            ))}
-            <button
-              style={L.priceCtaOutline}
-              onClick={() => navigate('/signup?plan=assistant')}
-              onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.background = 'rgba(102,126,234,0.15)'; e.target.style.borderColor = 'rgba(102,126,234,0.5)'; }}
-              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.background = 'rgba(102,126,234,0.08)'; e.target.style.borderColor = 'rgba(102,126,234,0.35)'; }}
-            >
-              Get Started
-            </button>
-          </div>
-
-          {/* Pro */}
+        <div style={{ maxWidth: '440px', margin: '0 auto' }}>
           <div
             style={L.priceCardPro}
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.5)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.35)'; }}
           >
-            <div style={L.pricePopular}>Most Popular</div>
-            <div style={L.pricePlanName}>Pro</div>
-            <div style={L.priceAmount}>$149.99</div>
+            <div style={L.pricePlanName}>Kova Assistant</div>
+            <div style={L.priceAmount}>$25</div>
             <div style={L.pricePer}>per month</div>
             <div style={L.priceDivider} />
-            {PRO_FEATURES.map((f) => (
+            {PLAN_FEATURES.map((f) => (
               <div key={f} style={L.priceFeature}>
                 <span style={L.priceCheck}>{'\u2713'}</span>
                 <span>{f}</span>
@@ -1012,11 +976,11 @@ export default function Landing() {
             ))}
             <button
               style={L.priceCta}
-              onClick={() => navigate('/signup?plan=pro')}
+              onClick={() => navigate('/signup')}
               onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 12px 48px rgba(102,126,234,0.5), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
               onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 8px 32px rgba(102,126,234,0.35), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
             >
-              Get Kova Pro
+              Get Started
             </button>
           </div>
         </div>

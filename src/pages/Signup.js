@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -14,8 +14,8 @@ const SOCIAL_PROVIDERS = [
 ];
 
 const AI_NAMES = [
-  { name: 'Kova (Male)',   emoji: '🤵', tagline: 'Confident & professional', color: '#667eea' },
-  { name: 'Kova (Female)', emoji: '👩‍💼', tagline: 'Warm & polished',         color: '#a855f7' },
+  { name: 'Kova (Male)',   emoji: '\uD83E\uDD35', tagline: 'Confident & professional', color: '#667eea' },
+  { name: 'Kova (Female)', emoji: '\uD83D\uDC69\u200D\uD83D\uDCBC', tagline: 'Warm & polished',         color: '#a855f7' },
 ];
 
 const S = {
@@ -120,30 +120,6 @@ const S = {
     background:color, display:'flex', alignItems:'center', justifyContent:'center',
     fontSize:'11px', fontWeight:700, color:'#fff', flexShrink:0,
   }),
-  socialBtnWide: {
-    display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
-    background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
-    borderRadius:'8px', padding:'11px', cursor:'pointer',
-    color:'#fff', fontSize:'13px', fontWeight:500,
-    fontFamily:"'Inter',sans-serif", gridColumn:'span 2',
-  },
-  // Plan selector
-  planGrid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'20px' },
-  planCard: (selected) => ({
-    background: selected ? 'rgba(102,126,234,0.12)' : 'rgba(255,255,255,0.04)',
-    border: selected ? '2px solid #667eea' : '1px solid rgba(255,255,255,0.1)',
-    borderRadius:'12px', padding:'16px', cursor:'pointer', transition:'all 0.15s',
-    textAlign:'center',
-  }),
-  planName: { color:'#fff', fontWeight:600, fontSize:'15px', marginBottom:'4px' },
-  planPrice: { color:'#a0b4f7', fontWeight:700, fontSize:'20px', marginBottom:'4px' },
-  planDesc: { color:'rgba(255,255,255,0.4)', fontSize:'11px' },
-  planBadge: {
-    display:'inline-block', background:'linear-gradient(135deg,#667eea,#764ba2)',
-    color:'#fff', fontSize:'9px', fontWeight:700, letterSpacing:'0.5px',
-    padding:'2px 8px', borderRadius:'10px', marginBottom:'6px', textTransform:'uppercase',
-  },
-  // Step 2 — name selection
   nameGrid: {
     display:'grid', gridTemplateColumns:'1fr 1fr',
     gap:'16px', marginBottom:'20px',
@@ -164,15 +140,23 @@ const S = {
     boxSizing:'border-box', fontFamily:"'Inter',sans-serif",
     marginTop:'12px',
   },
+  phoneRow: {
+    display:'flex', gap:'8px', alignItems:'stretch',
+  },
+  phonePrefix: {
+    background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)',
+    borderRadius:'8px', padding:'13px 14px', color:'rgba(255,255,255,0.6)',
+    fontSize:'15px', fontFamily:"'Inter',sans-serif", whiteSpace:'nowrap',
+    display:'flex', alignItems:'center',
+  },
 };
 
 export default function Signup() {
-  const [searchParams] = useSearchParams();
   const [step, setStep]                   = useState(1);
   const [name, setName]                   = useState('');
   const [email, setEmail]                 = useState('');
   const [password, setPassword]           = useState('');
-  const [plan, setPlan]                   = useState(searchParams.get('plan') === 'pro' ? 'pro' : 'assistant');
+  const [phoneNumber, setPhoneNumber]     = useState('');
   const [agreed, setAgreed]               = useState(false);
   const [assistantName, setAssistantName] = useState('');
   const [customName, setCustomName]       = useState('');
@@ -206,6 +190,15 @@ export default function Signup() {
     setAssistantName('');
   }
 
+  function formatPhoneForApi() {
+    if (!phoneNumber) return null;
+    const digits = phoneNumber.replace(/[^\d]/g, '');
+    if (digits.length === 10) return '+1' + digits;
+    if (digits.length === 11 && digits.startsWith('1')) return '+' + digits;
+    if (digits.length > 0) return '+' + digits;
+    return null;
+  }
+
   async function handleSubmit() {
     setError('');
     const finalName = isCustom ? customName.trim() : assistantName;
@@ -217,8 +210,9 @@ export default function Signup() {
     setLoading(true);
     try {
       const res = await api.post('/api/signup', {
-        name, email, password, plan,
+        name, email, password,
         assistant_name: finalName,
+        phone_number: formatPhoneForApi(),
       });
       window.location.href = res.data.checkoutUrl;
     } catch (err) {
@@ -256,18 +250,9 @@ export default function Signup() {
             <div style={S.dividerLine} />
           </div>
 
-          <div style={S.planGrid}>
-            <div style={S.planCard(plan === 'assistant')} onClick={() => setPlan('assistant')}>
-              <div style={S.planName}>Standard</div>
-              <div style={S.planPrice}>$49.99</div>
-              <div style={S.planDesc}>30 messages/day</div>
-            </div>
-            <div style={S.planCard(plan === 'pro')} onClick={() => setPlan('pro')}>
-              <div style={S.planBadge}>Popular</div>
-              <div style={S.planName}>Pro</div>
-              <div style={S.planPrice}>$149.99</div>
-              <div style={S.planDesc}>100 messages/day</div>
-            </div>
+          <div style={S.price}>
+            <span style={S.priceLabel}>Kova Assistant</span>
+            <span style={S.priceAmount}>$25/month</span>
           </div>
 
           {error && <div style={S.error}>{error}</div>}
@@ -282,6 +267,14 @@ export default function Signup() {
               <label style={S.label}>Email</label>
               <input style={S.input} type="email" required value={email}
                 onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
+            </div>
+            <div style={S.field}>
+              <label style={S.label}>Phone Number</label>
+              <div style={S.phoneRow}>
+                <div style={S.phonePrefix}>+1</div>
+                <input style={{ ...S.input, flex: 1 }} type="tel" value={phoneNumber}
+                  onChange={e => setPhoneNumber(e.target.value)} placeholder="(555) 123-4567" />
+              </div>
             </div>
             <div style={S.field}>
               <label style={S.label}>Password</label>
@@ -301,16 +294,16 @@ export default function Signup() {
               </label>
             </div>
             <button style={{ ...S.btn, ...((!agreed) ? S.btnDisabled : {}) }} type="submit" disabled={!agreed}>
-              Next: Choose Your Assistant →
+              Next: Choose Your Assistant &rarr;
             </button>
           </form>
 
           <div style={S.terms}>
-            {plan === 'pro' ? '$149.99' : '$49.99'}/month. Cancel anytime. {plan === 'pro' ? '100' : '30'} messages/day included.
+            $25/month. Cancel anytime. 200 messages, 10 call minutes, 20 web tasks included.
           </div>
 
           <div style={{ textAlign:'center' }}>
-            <span style={S.backLink} onClick={() => navigate('/')}>← Back to home</span>
+            <span style={S.backLink} onClick={() => navigate('/')}>&#8592; Back to home</span>
             <span style={{ ...S.backLink, marginLeft:'16px' }} onClick={() => navigate('/portal/login')}>
               Already have an account? Sign in
             </span>
@@ -346,7 +339,7 @@ export default function Signup() {
             style={S.nameCard(isCustom, '#9ca3af')}
             onClick={selectCustom}
           >
-            <div style={S.nameEmoji}>✏️</div>
+            <div style={S.nameEmoji}>{'\u270F\uFE0F'}</div>
             <div style={S.nameName}>Other</div>
             <div style={S.nameTag}>Choose your own</div>
           </div>
@@ -367,12 +360,12 @@ export default function Signup() {
           disabled={loading || !canSubmit}
           onClick={handleSubmit}
         >
-          {loading ? 'Setting up...' : 'Continue to Payment →'}
+          {loading ? 'Setting up...' : 'Continue to Payment \u2192'}
         </button>
 
         <div style={{ textAlign:'center' }}>
           <span style={S.backLink} onClick={() => { setStep(1); setError(''); }}>
-            ← Back to account details
+            &#8592; Back to account details
           </span>
         </div>
       </div>

@@ -390,6 +390,7 @@ export default function PortalPreferences() {
   const [calendarConnected, setCalendarConnected] = useState(false);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [calendarMsg, setCalendarMsg] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [profile, setProfile] = useState({
     full_name: '', dietary_restrictions: '', cuisine_preferences: '',
     preferred_restaurants: '', dining_budget: '', preferred_airlines: '',
@@ -431,6 +432,10 @@ export default function PortalPreferences() {
           setLoyalty(r.data.loyalty_numbers);
         }
       }
+    }).catch(() => {});
+
+    customerApi.get('/api/customer/me').then(r => {
+      if (r.data?.phone_number) setPhoneNumber(r.data.phone_number);
     }).catch(() => {});
 
     customerApi.get('/api/customer/apps').then(r => {
@@ -478,7 +483,7 @@ export default function PortalPreferences() {
   async function saveProfile() {
     setSaving(true); setSaved(false);
     try {
-      const payload = { ...profile, loyalty_numbers: loyalty.filter(l => l.program || l.number) };
+      const payload = { ...profile, loyalty_numbers: loyalty.filter(l => l.program || l.number), phone_number: phoneNumber || null };
       delete payload.has_gmail_app_password;
       if (!payload.gmail_app_password) delete payload.gmail_app_password;
       await customerApi.patch('/api/customer/profile', payload);
@@ -761,13 +766,19 @@ export default function PortalPreferences() {
               <input style={S.input} {...F('full_name')} placeholder="As on passport" />
             </div>
             <div>
+              <label style={S.label}>Phone Number</label>
+              <input style={S.input} value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="+1 (555) 123-4567" />
+            </div>
+          </div>
+          <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+            <div>
               <label style={S.label}>Date of Birth</label>
               <input style={S.input} type="date" {...F('date_of_birth')} />
             </div>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <label style={S.label}>Passport Number (encrypted)</label>
-            <input style={S.input} {...F('passport_number')} placeholder="For flight bookings" />
+            <div>
+              <label style={S.label}>Passport Number (encrypted)</label>
+              <input style={S.input} {...F('passport_number')} placeholder="For flight bookings" />
+            </div>
           </div>
         </div>
 
