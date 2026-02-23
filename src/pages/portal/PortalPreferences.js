@@ -400,10 +400,11 @@ export default function PortalPreferences() {
     timezone: '', gmail_app_password: '', has_gmail_app_password: false,
   });
   const [loyalty, setLoyalty] = useState([{ program: '', number: '' }]);
-  const [connectedApps, setConnectedApps] = useState({});
+  const [connectedApps, setConnectedApps] = useState({}); // { appId: 'connected' | 'unverified' }
   const [appModal, setAppModal] = useState(null);
   const [appCreds, setAppCreds] = useState({ username: '', password: '' });
   const [appSaving, setAppSaving] = useState(false);
+  const [appError, setAppError] = useState('');
   const [appSearch, setAppSearch] = useState('');
   const [expandedCategories, setExpandedCategories] = useState({});
 
@@ -441,7 +442,7 @@ export default function PortalPreferences() {
 
     customerApi.get('/api/customer/apps').then(r => {
       const map = {};
-      (r.data || []).forEach(a => { map[a.app_name] = a.app_name; });
+      (r.data || []).forEach(a => { map[a.app_name] = a.status || 'connected'; });
       setConnectedApps(map);
     }).catch(() => {});
 
@@ -523,22 +524,26 @@ export default function PortalPreferences() {
   async function connectApp() {
     if (!appCreds.username || !appCreds.password) return;
     setAppSaving(true);
+    setAppError('');
     try {
       // Find the category for this app
       const cat = APP_CATEGORIES.find(c => c.apps.some(a => a.id === appModal.id));
-      await customerApi.post('/api/customer/apps/connect', {
+      const r = await customerApi.post('/api/customer/apps/connect', {
         app_name: appModal.id,
         category: cat?.category || null,
         username: appCreds.username,
         password: appCreds.password,
       });
-      setConnectedApps(prev => ({ ...prev, [appModal.id]: appModal.id }));
+      const status = r.data?.status || 'connected';
+      setConnectedApps(prev => ({ ...prev, [appModal.id]: status }));
       setAppModal(null);
       setAppCreds({ username: '', password: '' });
+      setAppError('');
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch {
-      alert('Failed to connect app');
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Failed to connect app';
+      setAppError(msg);
     } finally { setAppSaving(false); }
   }
 
@@ -554,6 +559,7 @@ export default function PortalPreferences() {
 
   function openAppModal(app) {
     setAppCreds({ username: '', password: '' });
+    setAppError('');
     setAppModal(app);
   }
 
@@ -745,6 +751,7 @@ export default function PortalPreferences() {
 
   return (
     <div style={S.page}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <nav style={S.nav}>
         <button style={S.back} onClick={() => navigate('/portal')}>
           &#8592; Back
@@ -1060,7 +1067,9 @@ export default function PortalPreferences() {
                 <div style={S.categoryBody(expanded)}>
                   <div style={S.appGrid}>
                     {cat.apps.map(app => {
-                      const isConnected = !!connectedApps[app.id];
+                      const appStatus = connectedApps[app.id];
+                      const isConnected = !!appStatus;
+                      const isUnverified = appStatus === 'unverified';
                       return (
                         <div
                           key={app.id}
@@ -1083,8 +1092,12 @@ export default function PortalPreferences() {
                           <div style={S.appCardInfo}>
                             <div style={S.appCardName}>{app.name}</div>
                             {isConnected && (
-                              <div style={S.appCardBadge}>
-                                <span style={{ fontSize: '8px' }}>&#9679;</span> Connected
+                              <div style={{
+                                ...S.appCardBadge,
+                                color: isUnverified ? '#fbbf24' : '#66bb6a',
+                              }}>
+                                <span style={{ fontSize: '8px' }}>&#9679;</span>
+                                {isUnverified ? 'Unverified' : 'Connected'}
                               </div>
                             )}
                           </div>
@@ -1132,13 +1145,39 @@ export default function PortalPreferences() {
             {!connectedApps[appModal.id] && (
               <>
                 <div style={S.modalSub}>
-                  Enter your {appModal.name} login credentials. Kova will use these to perform actions on your behalf.
+                  Enter your {appModal.name} login credentials. Kova will verify them before saving.
                 </div>
 
                 <div style={S.modalSecurityBadge}>
                   <span style={{ fontSize: '14px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>
                   <span>Credentials encrypted with AES-256</span>
                 </div>
+
+                {appError && (
+                  <div style={{
+                    background: 'rgba(239, 83, 80, 0.1)', border: '1px solid rgba(239, 83, 80, 0.3)',
+                    borderRadius: '10px', padding: '12px 16px', marginBottom: '16px',
+                    fontSize: '13px', color: '#ef5350', lineHeight: 1.5,
+                  }}>
+                    {appError}
+                  </div>
+                )}
+
+                {appSaving && (
+                  <div style={{
+                    background: 'rgba(102, 126, 234, 0.1)', border: '1px solid rgba(102, 126, 234, 0.25)',
+                    borderRadius: '10px', padding: '14px 16px', marginBottom: '16px',
+                    fontSize: '13px', color: '#90caf9', lineHeight: 1.5,
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                  }}>
+                    <span style={{
+                      display: 'inline-block', width: '14px', height: '14px',
+                      border: '2px solid rgba(144,202,249,0.3)', borderTopColor: '#90caf9',
+                      borderRadius: '50%', animation: 'spin 0.8s linear infinite',
+                    }} />
+                    Verifying login... this may take 15-30 seconds
+                  </div>
+                )}
 
                 <div style={{ marginBottom: '16px' }}>
                   <label style={S.modalLabel}>Username / Email</label>
@@ -1148,9 +1187,10 @@ export default function PortalPreferences() {
                     onChange={e => setAppCreds(c => ({ ...c, username: e.target.value }))}
                     placeholder={`Your ${appModal.name} email or username`}
                     autoFocus
+                    disabled={appSaving}
                     onFocus={e => { e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)'; }}
                     onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                    onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && connectApp()}
+                    onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && !appSaving && connectApp()}
                   />
                 </div>
                 <div>
@@ -1161,9 +1201,10 @@ export default function PortalPreferences() {
                     value={appCreds.password}
                     onChange={e => setAppCreds(c => ({ ...c, password: e.target.value }))}
                     placeholder="Your password"
+                    disabled={appSaving}
                     onFocus={e => { e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)'; }}
                     onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                    onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && connectApp()}
+                    onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && !appSaving && connectApp()}
                   />
                 </div>
 
@@ -1174,11 +1215,11 @@ export default function PortalPreferences() {
                   onMouseEnter={e => { if (!appSaving && appCreds.username && appCreds.password) e.currentTarget.style.transform = 'translateY(-1px)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  {appSaving ? 'Connecting...' : 'Connect'}
+                  {appSaving ? 'Verifying login...' : 'Connect'}
                 </button>
                 <button
                   style={S.modalCancelBtn}
-                  onClick={() => setAppModal(null)}
+                  onClick={() => { if (!appSaving) setAppModal(null); }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
                 >
@@ -1192,9 +1233,20 @@ export default function PortalPreferences() {
                 <div style={S.modalSub}>
                   Your credentials are securely stored and encrypted. Kova will use them when needed to complete tasks on your behalf.
                 </div>
-                <div style={S.modalConnectedBadge}>
-                  <span>&#10003;</span> Connected
-                </div>
+                {connectedApps[appModal.id] === 'unverified' ? (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '8px',
+                    background: 'rgba(251, 191, 36, 0.12)', color: '#fbbf24', borderRadius: '24px',
+                    padding: '8px 18px', fontSize: '13px', fontWeight: 600, marginBottom: '20px',
+                    border: '1px solid rgba(251, 191, 36, 0.25)',
+                  }}>
+                    <span>&#9888;</span> Unverified — credentials saved but not yet tested
+                  </div>
+                ) : (
+                  <div style={S.modalConnectedBadge}>
+                    <span>&#10003;</span> Connected
+                  </div>
+                )}
                 <button
                   style={S.modalDisconnectBtn}
                   onClick={() => disconnectApp(appModal.id)}
