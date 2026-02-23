@@ -150,6 +150,10 @@ export default function ResetPassword() {
                 </button>
               </form>
             )}
+            <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '16px', textAlign: 'center', lineHeight: 1.5 }}>
+              If you don't receive an email, contact us at{' '}
+              <a href="mailto:support@kova.app" style={{ color: '#a0b4f7', textDecoration: 'none' }}>support@kova.app</a>
+            </div>
           </>
         )}
 

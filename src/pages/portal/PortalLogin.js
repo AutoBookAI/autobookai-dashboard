@@ -5,7 +5,7 @@ import AppIcon from '../../components/AppIcon';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-const SOCIAL_PROVIDERS = [
+const ALL_SOCIAL_PROVIDERS = [
   { id: 'google',    label: 'Google',    color: '#4285F4' },
   { id: 'facebook',  label: 'Facebook',  color: '#1877F2' },
   { id: 'apple',     label: 'Apple',     color: '#000000' },
@@ -102,8 +102,20 @@ export default function PortalLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [availableProviders, setAvailableProviders] = useState([]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Fetch which social providers are configured
+  useEffect(() => {
+    fetch(`${API_URL}/api/auth/social/available`)
+      .then(r => r.json())
+      .then(data => {
+        const configured = (data.providers || []);
+        setAvailableProviders(ALL_SOCIAL_PROVIDERS.filter(p => configured.includes(p.id)));
+      })
+      .catch(() => {});
+  }, []);
 
   // Handle OAuth callback redirect (token in URL params)
   useEffect(() => {
@@ -152,21 +164,25 @@ export default function PortalLogin() {
 
         {error && <div style={C.error}>{error}</div>}
 
-        {/* Social login buttons */}
-        <div style={C.socialGrid}>
-          {SOCIAL_PROVIDERS.map(p => (
-            <div key={p.id} style={C.socialBtn(p.color)} onClick={() => socialLogin(p.id)}>
-              <div style={C.socialIcon(p.color)}><AppIcon name={p.id} size={14} /></div>
-              <span>{p.label}</span>
+        {/* Social login buttons — only show configured providers */}
+        {availableProviders.length > 0 && (
+          <>
+            <div style={C.socialGrid}>
+              {availableProviders.map(p => (
+                <div key={p.id} style={C.socialBtn(p.color)} onClick={() => socialLogin(p.id)}>
+                  <div style={C.socialIcon(p.color)}><AppIcon name={p.id} size={14} /></div>
+                  <span>{p.label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div style={C.divider}>
-          <div style={C.dividerLine} />
-          <span>or sign in with email</span>
-          <div style={C.dividerLine} />
-        </div>
+            <div style={C.divider}>
+              <div style={C.dividerLine} />
+              <span>or sign in with email</span>
+              <div style={C.dividerLine} />
+            </div>
+          </>
+        )}
 
         <form onSubmit={handleLogin}>
           <div style={C.field}>

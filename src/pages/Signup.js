@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import AppIcon from '../components/AppIcon';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-const SOCIAL_PROVIDERS = [
+const ALL_SOCIAL_PROVIDERS = [
   { id: 'google',    label: 'Google',    color: '#4285F4' },
   { id: 'facebook',  label: 'Facebook',  color: '#1877F2' },
   { id: 'apple',     label: 'Apple',     color: '#000000' },
@@ -164,7 +164,19 @@ export default function Signup() {
   const [isCustom, setIsCustom]           = useState(false);
   const [error, setError]                 = useState('');
   const [loading, setLoading]             = useState(false);
+  const [availableProviders, setAvailableProviders] = useState([]);
   const navigate = useNavigate();
+
+  // Fetch which social providers are configured
+  useEffect(() => {
+    fetch(`${API_URL}/api/auth/social/available`)
+      .then(r => r.json())
+      .then(data => {
+        const configured = (data.providers || []);
+        setAvailableProviders(ALL_SOCIAL_PROVIDERS.filter(p => configured.includes(p.id)));
+      })
+      .catch(() => {});
+  }, []);
 
   function handleStep1(e) {
     e.preventDefault();
@@ -234,22 +246,26 @@ export default function Signup() {
           <div style={S.title}>Get Your Kova Assistant</div>
           <div style={S.sub}>Step 1 of 2 — Create your account</div>
 
-          {/* Social signup buttons */}
-          <div style={S.socialGrid}>
-            {SOCIAL_PROVIDERS.map(p => (
-              <div key={p.id} style={S.socialBtn(p.color)}
-                onClick={() => { window.location.href = `${API_URL}/api/auth/social/${p.id}?signup=true`; }}>
-                <div style={S.socialIcon(p.color)}><AppIcon name={p.id} size={14} /></div>
-                <span>{p.label}</span>
+          {/* Social signup buttons — only show configured providers */}
+          {availableProviders.length > 0 && (
+            <>
+              <div style={S.socialGrid}>
+                {availableProviders.map(p => (
+                  <div key={p.id} style={S.socialBtn(p.color)}
+                    onClick={() => { window.location.href = `${API_URL}/api/auth/social/${p.id}?signup=true`; }}>
+                    <div style={S.socialIcon(p.color)}><AppIcon name={p.id} size={14} /></div>
+                    <span>{p.label}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <div style={S.divider}>
-            <div style={S.dividerLine} />
-            <span>or sign up with email</span>
-            <div style={S.dividerLine} />
-          </div>
+              <div style={S.divider}>
+                <div style={S.dividerLine} />
+                <span>or sign up with email</span>
+                <div style={S.dividerLine} />
+              </div>
+            </>
+          )}
 
           <div style={S.price}>
             <span style={S.priceLabel}>Kova Assistant</span>
