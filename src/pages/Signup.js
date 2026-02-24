@@ -316,7 +316,7 @@ export default function Signup() {
           </form>
 
           <div style={S.terms}>
-            $40/month. Cancel anytime. 30 messages/day, 60 call minutes/month, 2 web tasks/day.
+            $40/month. Cancel anytime. 30 messages/day, 60 call minutes/day, unlimited web tasks.
           </div>
 
           <div style={{ textAlign:'center' }}>

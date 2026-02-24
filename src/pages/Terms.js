@@ -131,7 +131,7 @@ export default function Terms() {
           The Service is offered on a monthly subscription basis at $40/month. You authorize us to
           charge your payment method on a recurring basis. You may cancel your subscription at any time,
           effective at the end of the current billing period. No refunds are provided for partial months.
-          Your plan includes 30 messages per day, 60 call minutes per month, and 2 web tasks per day.
+          Your plan includes 30 messages per day, 60 call minutes per day, and unlimited web tasks.
         </p>
 
         <h2 style={S.h2}>9. Indemnification</h2>

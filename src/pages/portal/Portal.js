@@ -855,47 +855,62 @@ export default function Portal() {
               padding: '24px',
               backdropFilter: 'blur(12px)',
             }}>
-              {[
-                { label: 'Messages', used: usage.whatsapp.used, limit: usage.whatsapp.limit, period: usage.whatsapp.period || 'daily', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg> },
-                { label: 'Call Minutes', used: usage.calls.used, limit: usage.calls.limit, period: usage.calls.period || 'monthly', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.02l-2.2 2.19z"/></svg> },
-                { label: 'Web Tasks', used: usage.webTasks.used, limit: usage.webTasks.limit, period: usage.webTasks.period || 'daily', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> },
-              ].map((item, i) => {
-                const pct = Math.min(100, (item.used / item.limit) * 100);
+              {/* Messages */}
+              {(() => {
+                const pct = Math.min(100, (usage.whatsapp.used / usage.whatsapp.limit) * 100);
                 const isHigh = pct >= 80;
-                const periodLabel = item.period === 'daily' ? 'today' : 'this month';
                 return (
-                  <div key={item.label} style={{ marginBottom: i < 2 ? '20px' : 0 }}>
+                  <div style={{ marginBottom: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', fontWeight: 500 }}>
-                        {item.icon} {item.label}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg> Messages
                       </span>
                       <span style={{ color: isHigh ? '#f87171' : '#a78bfa', fontSize: '14px', fontWeight: 600 }}>
-                        {item.used}/{item.limit} {periodLabel}
+                        {usage.whatsapp.used}/{usage.whatsapp.limit} today
                       </span>
                     </div>
-                    <div style={{
-                      width: '100%', height: '8px', borderRadius: '4px',
-                      background: 'rgba(255,255,255,0.08)',
-                      overflow: 'hidden',
-                    }}>
-                      <div style={{
-                        width: `${pct}%`,
-                        height: '100%',
-                        borderRadius: '4px',
-                        background: isHigh
-                          ? 'linear-gradient(90deg, #f87171, #ef4444)'
-                          : 'linear-gradient(90deg, #7c5cfc, #a78bfa)',
-                        transition: 'width 0.5s ease',
-                      }} />
+                    <div style={{ width: '100%', height: '8px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', borderRadius: '4px', background: isHigh ? 'linear-gradient(90deg, #f87171, #ef4444)' : 'linear-gradient(90deg, #7c5cfc, #a78bfa)', transition: 'width 0.5s ease' }} />
                     </div>
                   </div>
                 );
-              })}
+              })()}
+              {/* Call Minutes */}
+              {(() => {
+                const pct = Math.min(100, (usage.calls.used / usage.calls.limit) * 100);
+                const isHigh = pct >= 80;
+                return (
+                  <div style={{ marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', fontWeight: 500 }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.02l-2.2 2.19z"/></svg> Call Minutes
+                      </span>
+                      <span style={{ color: isHigh ? '#f87171' : '#a78bfa', fontSize: '14px', fontWeight: 600 }}>
+                        {usage.calls.used}/{usage.calls.limit} today
+                      </span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', borderRadius: '4px', background: isHigh ? 'linear-gradient(90deg, #f87171, #ef4444)' : 'linear-gradient(90deg, #7c5cfc, #a78bfa)', transition: 'width 0.5s ease' }} />
+                    </div>
+                  </div>
+                );
+              })()}
+              {/* Web Tasks — Unlimited */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', fontWeight: 500 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> Web Tasks
+                  </span>
+                  <span style={{ color: '#34d399', fontSize: '14px', fontWeight: 600 }}>
+                    Unlimited
+                  </span>
+                </div>
+              </div>
               <div style={{
                 color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '16px',
                 textAlign: 'center',
               }}>
-                Messages & web tasks reset daily at midnight &middot; Call minutes reset on {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                Messages & call minutes reset daily at midnight
               </div>
             </div>
           </div>

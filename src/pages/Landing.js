@@ -670,8 +670,8 @@ const TESTIMONIALS = [
 
 const PLAN_FEATURES = [
   '30 WhatsApp messages per day',
-  '60 call minutes per month',
-  '2 web tasks per day',
+  '60 call minutes per day',
+  'Unlimited web tasks',
   'AI phone calls on your behalf',
   'Email sending & drafting',
   'Web search & research',
@@ -699,7 +699,7 @@ const FAQS = [
   },
   {
     q: 'What can Kova do?',
-    a: 'Kova can make phone calls, send emails, search the web, book restaurants, plan travel, manage your calendar, set reminders, and more. Your plan includes 30 messages/day, 60 call minutes/month, and 2 web tasks/day.',
+    a: 'Kova can make phone calls, send emails, search the web, book restaurants, plan travel, manage your calendar, set reminders, and more. Your plan includes 30 messages/day, 60 call minutes/day, and unlimited web tasks.',
   },
 ];
 
