@@ -196,7 +196,7 @@ export default function SignupSuccess() {
         </div>
 
         <div style={{ color:'rgba(255,255,255,0.3)', fontSize:'12px' }}>
-          Your subscription: $25/month. You can cancel anytime via your billing portal.
+          Your subscription: $40/month. You can cancel anytime via your billing portal.
         </div>
         <button
           style={{

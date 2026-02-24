@@ -844,10 +844,10 @@ export default function Portal() {
           </div>
         </div>
 
-        {/* Usage This Month */}
+        {/* Usage */}
         {usage && (
           <div style={{ marginBottom: '28px' }}>
-            <div style={S.sectionTitle}>Usage This Month</div>
+            <div style={S.sectionTitle}>Usage</div>
             <div style={{
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.07)',
@@ -856,12 +856,13 @@ export default function Portal() {
               backdropFilter: 'blur(12px)',
             }}>
               {[
-                { label: 'Messages', used: usage.whatsapp.used, limit: usage.whatsapp.limit, icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg> },
-                { label: 'Call Minutes', used: usage.calls.used, limit: usage.calls.limit, icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.02l-2.2 2.19z"/></svg> },
-                { label: 'Web Tasks', used: usage.webTasks.used, limit: usage.webTasks.limit, icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> },
+                { label: 'Messages', used: usage.whatsapp.used, limit: usage.whatsapp.limit, period: usage.whatsapp.period || 'daily', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg> },
+                { label: 'Call Minutes', used: usage.calls.used, limit: usage.calls.limit, period: usage.calls.period || 'monthly', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.02l-2.2 2.19z"/></svg> },
+                { label: 'Web Tasks', used: usage.webTasks.used, limit: usage.webTasks.limit, period: usage.webTasks.period || 'daily', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)" style={{verticalAlign:'middle'}}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> },
               ].map((item, i) => {
                 const pct = Math.min(100, (item.used / item.limit) * 100);
                 const isHigh = pct >= 80;
+                const periodLabel = item.period === 'daily' ? 'today' : 'this month';
                 return (
                   <div key={item.label} style={{ marginBottom: i < 2 ? '20px' : 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -869,7 +870,7 @@ export default function Portal() {
                         {item.icon} {item.label}
                       </span>
                       <span style={{ color: isHigh ? '#f87171' : '#a78bfa', fontSize: '14px', fontWeight: 600 }}>
-                        {item.used}/{item.limit}
+                        {item.used}/{item.limit} {periodLabel}
                       </span>
                     </div>
                     <div style={{
@@ -894,7 +895,7 @@ export default function Portal() {
                 color: 'rgba(255,255,255,0.3)', fontSize: '12px', marginTop: '16px',
                 textAlign: 'center',
               }}>
-                Resets on {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                Messages & web tasks reset daily at midnight &middot; Call minutes reset on {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
               </div>
             </div>
           </div>
@@ -908,18 +909,13 @@ export default function Portal() {
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
             </svg>
           </span>
-          {me.subscription_status === 'active' && me.whatsapp_to ? (
+          {me.subscription_status === 'active' ? (
             <>
-              <div style={S.whatsappTitle}>Your Kova WhatsApp Number</div>
-              <div style={S.whatsappNumber}>{formatPhone(me.whatsapp_to)}</div>
+              <div style={S.whatsappTitle}>Text Kova on WhatsApp</div>
+              <div style={S.whatsappNumber}>+1 (415) 523-8886</div>
               <div style={S.whatsappHint}>
                 First, send <strong style={{ color: '#25D366' }}>"join success-alphabet"</strong> to this number on WhatsApp to connect. Then you can text Kova anytime.
               </div>
-            </>
-          ) : me.subscription_status === 'active' ? (
-            <>
-              <div style={S.whatsappTitle}>WhatsApp Number</div>
-              <div style={S.whatsappPending}>Your number is being assigned. Check back shortly.</div>
             </>
           ) : (
             <>

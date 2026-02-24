@@ -233,7 +233,7 @@ export default function CustomerDetail() {
           <div style={S.sideSection}>
             <div style={S.sideLabel}>Billing</div>
             <div style={S.infoKey}>Plan</div>
-            <div style={S.infoVal}>Kova — $25/mo</div>
+            <div style={S.infoVal}>Kova — $40/mo</div>
             {customer.subscription_status !== 'active' ? (
               <button style={S.subscribeBtn} onClick={handleSubscribe}>
                 Send Payment Link

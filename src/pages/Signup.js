@@ -269,7 +269,7 @@ export default function Signup() {
 
           <div style={S.price}>
             <span style={S.priceLabel}>Kova Assistant</span>
-            <span style={S.priceAmount}>$25/month</span>
+            <span style={S.priceAmount}>$40/month</span>
           </div>
 
           {error && <div style={S.error}>{error}</div>}
@@ -316,7 +316,7 @@ export default function Signup() {
           </form>
 
           <div style={S.terms}>
-            $25/month. Cancel anytime. 200 messages, 10 call minutes, 20 web tasks included.
+            $40/month. Cancel anytime. 30 messages/day, 60 call minutes/month, 2 web tasks/day.
           </div>
 
           <div style={{ textAlign:'center' }}>

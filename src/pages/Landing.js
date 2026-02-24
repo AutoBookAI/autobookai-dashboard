@@ -642,7 +642,7 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { num: '1', title: 'Sign Up', desc: 'Create your account in less than 2 minutes. Just $25/month for your personal AI assistant.' },
+  { num: '1', title: 'Sign Up', desc: 'Create your account in less than 2 minutes. Just $40/month for your personal AI assistant.' },
   { num: '2', title: 'Connect WhatsApp', desc: 'We assign you a dedicated Kova number. Just text it on WhatsApp to activate your assistant.' },
   { num: '3', title: 'Kova Handles Everything', desc: 'Make requests in plain language. Kova calls, books, emails, and researches -- all for you.' },
 ];
@@ -669,9 +669,9 @@ const TESTIMONIALS = [
 ];
 
 const PLAN_FEATURES = [
-  '200 WhatsApp messages per month',
-  '10 call minutes per month',
-  '20 web tasks per month',
+  '30 WhatsApp messages per day',
+  '60 call minutes per month',
+  '2 web tasks per day',
   'AI phone calls on your behalf',
   'Email sending & drafting',
   'Web search & research',
@@ -699,7 +699,7 @@ const FAQS = [
   },
   {
     q: 'What can Kova do?',
-    a: 'Kova can make phone calls, send emails, search the web, book restaurants, plan travel, manage your calendar, set reminders, and more. Your plan includes 200 messages, 10 call minutes, and 20 web tasks per month.',
+    a: 'Kova can make phone calls, send emails, search the web, book restaurants, plan travel, manage your calendar, set reminders, and more. Your plan includes 30 messages/day, 60 call minutes/month, and 2 web tasks/day.',
   },
 ];
 
@@ -870,7 +870,7 @@ export default function Landing() {
               Sign In
             </button>
           </div>
-          <div style={L.heroPrice}>$25/month &middot; Cancel anytime</div>
+          <div style={L.heroPrice}>$40/month &middot; Cancel anytime</div>
         </div>
       </div>
 
@@ -982,7 +982,7 @@ export default function Landing() {
             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(102,126,234,0.35)'; }}
           >
             <div style={L.pricePlanName}>Kova Assistant</div>
-            <div style={L.priceAmount}>$25</div>
+            <div style={L.priceAmount}>$40</div>
             <div style={L.pricePer}>per month</div>
             <div style={L.priceDivider} />
             {PLAN_FEATURES.map((f) => (

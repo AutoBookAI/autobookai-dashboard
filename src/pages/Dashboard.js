@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
-const PLAN_PRICE = 25;
+const PLAN_PRICE = 40;
 
 /* ── Inline Styles ─────────────────────────────────────────────────── */
 const G = {
