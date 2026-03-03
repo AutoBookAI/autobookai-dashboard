@@ -400,9 +400,11 @@ export default function PortalPreferences() {
     timezone: '', gmail_app_password: '', has_gmail_app_password: false,
   });
   const [loyalty, setLoyalty] = useState([{ program: '', number: '' }]);
-  const [connectedApps, setConnectedApps] = useState({}); // { appId: 'connected' | 'unverified' }
+  const [connectedApps, setConnectedApps] = useState({}); // { appId: { status, auth_type } }
   const [appModal, setAppModal] = useState(null);
   const [appCreds, setAppCreds] = useState({ username: '', password: '' });
+  const [appCookies, setAppCookies] = useState('');
+  const [appAuthTab, setAppAuthTab] = useState('credentials'); // 'credentials' or 'cookies'
   const [appSaving, setAppSaving] = useState(false);
   const [appError, setAppError] = useState('');
   const [appSearch, setAppSearch] = useState('');
@@ -442,7 +444,9 @@ export default function PortalPreferences() {
 
     customerApi.get('/api/customer/apps').then(r => {
       const map = {};
-      (r.data || []).forEach(a => { map[a.app_name] = a.status || 'connected'; });
+      (r.data || []).forEach(a => {
+        map[a.app_name] = { status: a.status || 'connected', auth_type: a.auth_type || 'credentials' };
+      });
       setConnectedApps(map);
     }).catch(() => {});
 
@@ -535,7 +539,7 @@ export default function PortalPreferences() {
         password: appCreds.password,
       });
       const status = r.data?.status || 'connected';
-      setConnectedApps(prev => ({ ...prev, [appModal.id]: status }));
+      setConnectedApps(prev => ({ ...prev, [appModal.id]: { status, auth_type: 'credentials' } }));
       setAppModal(null);
       setAppCreds({ username: '', password: '' });
       setAppError('');
@@ -543,6 +547,34 @@ export default function PortalPreferences() {
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       const msg = err.response?.data?.error || 'Failed to connect app';
+      setAppError(msg);
+    } finally { setAppSaving(false); }
+  }
+
+  async function connectAppCookies() {
+    if (!appCookies.trim()) return;
+    setAppSaving(true);
+    setAppError('');
+    try {
+      // Validate JSON format
+      let parsed;
+      try { parsed = JSON.parse(appCookies); } catch { throw new Error('Invalid JSON — please paste valid cookie data'); }
+      if (!Array.isArray(parsed)) throw new Error('Cookies must be a JSON array');
+
+      const cat = APP_CATEGORIES.find(c => c.apps.some(a => a.id === appModal.id));
+      await customerApi.post('/api/customer/apps/connect-cookies', {
+        app_name: appModal.id,
+        category: cat?.category || null,
+        cookies: parsed,
+      });
+      setConnectedApps(prev => ({ ...prev, [appModal.id]: { status: 'connected', auth_type: 'cookies' } }));
+      setAppModal(null);
+      setAppCookies('');
+      setAppError('');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      const msg = err.message || err.response?.data?.error || 'Failed to connect app';
       setAppError(msg);
     } finally { setAppSaving(false); }
   }
@@ -559,6 +591,8 @@ export default function PortalPreferences() {
 
   function openAppModal(app) {
     setAppCreds({ username: '', password: '' });
+    setAppCookies('');
+    setAppAuthTab('credentials');
     setAppError('');
     setAppModal(app);
   }
@@ -746,7 +780,7 @@ export default function PortalPreferences() {
     return !!expandedCategories[catName];
   };
 
-  const totalConnected = Object.keys(connectedApps).length;
+  const totalConnected = Object.values(connectedApps).filter(a => a?.status).length;
   const totalApps = APP_CATEGORIES.reduce((sum, cat) => sum + cat.apps.length, 0);
 
   return (
@@ -1041,7 +1075,7 @@ export default function PortalPreferences() {
 
           {filteredCategories.map(cat => {
             const expanded = isCategoryExpanded(cat.category);
-            const connectedInCat = cat.apps.filter(a => !!connectedApps[a.id]).length;
+            const connectedInCat = cat.apps.filter(a => !!connectedApps[a.id]?.status).length;
             return (
               <div key={cat.category}>
                 <div
@@ -1067,9 +1101,9 @@ export default function PortalPreferences() {
                 <div style={S.categoryBody(expanded)}>
                   <div style={S.appGrid}>
                     {cat.apps.map(app => {
-                      const appStatus = connectedApps[app.id];
-                      const isConnected = !!appStatus;
-                      const isUnverified = appStatus === 'unverified';
+                      const appData = connectedApps[app.id];
+                      const isConnected = !!appData?.status;
+                      const isUnverified = appData?.status === 'unverified';
                       return (
                         <div
                           key={app.id}
@@ -1139,18 +1173,46 @@ export default function PortalPreferences() {
 
             <div style={S.modalIconWrap}><AppIcon name={appModal.name} size={36} /></div>
             <div style={S.modalTitle}>
-              {connectedApps[appModal.id] ? appModal.name : `Connect ${appModal.name}`}
+              {connectedApps[appModal.id]?.status ? appModal.name : `Connect ${appModal.name}`}
             </div>
 
-            {!connectedApps[appModal.id] && (
+            {!connectedApps[appModal.id]?.status && (
               <>
-                <div style={S.modalSub}>
-                  Enter your {appModal.name} login credentials. Kova will verify them before saving.
+                {/* Auth method tabs */}
+                <div style={{
+                  display: 'flex', gap: '0', marginBottom: '20px',
+                  background: 'rgba(255,255,255,0.04)', borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.08)', padding: '3px',
+                }}>
+                  <button
+                    style={{
+                      flex: 1, padding: '10px 12px', fontSize: '12px', fontWeight: 600,
+                      fontFamily: "'Inter', sans-serif", cursor: 'pointer', border: 'none',
+                      borderRadius: '8px', transition: 'all 0.2s',
+                      background: appAuthTab === 'credentials' ? 'rgba(102, 126, 234, 0.2)' : 'transparent',
+                      color: appAuthTab === 'credentials' ? '#90caf9' : 'rgba(255,255,255,0.4)',
+                    }}
+                    onClick={() => { setAppAuthTab('credentials'); setAppError(''); }}
+                  >
+                    Login Credentials
+                  </button>
+                  <button
+                    style={{
+                      flex: 1, padding: '10px 12px', fontSize: '12px', fontWeight: 600,
+                      fontFamily: "'Inter', sans-serif", cursor: 'pointer', border: 'none',
+                      borderRadius: '8px', transition: 'all 0.2s',
+                      background: appAuthTab === 'cookies' ? 'rgba(102, 126, 234, 0.2)' : 'transparent',
+                      color: appAuthTab === 'cookies' ? '#90caf9' : 'rgba(255,255,255,0.4)',
+                    }}
+                    onClick={() => { setAppAuthTab('cookies'); setAppError(''); }}
+                  >
+                    Browser Cookies
+                  </button>
                 </div>
 
                 <div style={S.modalSecurityBadge}>
                   <span style={{ fontSize: '14px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>
-                  <span>Credentials encrypted with AES-256</span>
+                  <span>All data encrypted with AES-256</span>
                 </div>
 
                 {appError && (
@@ -1175,48 +1237,98 @@ export default function PortalPreferences() {
                       border: '2px solid rgba(144,202,249,0.3)', borderTopColor: '#90caf9',
                       borderRadius: '50%', animation: 'spin 0.8s linear infinite',
                     }} />
-                    Verifying login... this may take 15-30 seconds
+                    {appAuthTab === 'credentials' ? 'Verifying login... this may take 15-30 seconds' : 'Saving cookies...'}
                   </div>
                 )}
 
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={S.modalLabel}>Username / Email</label>
-                  <input
-                    style={S.modalInput}
-                    value={appCreds.username}
-                    onChange={e => setAppCreds(c => ({ ...c, username: e.target.value }))}
-                    placeholder={`Your ${appModal.name} email or username`}
-                    autoFocus
-                    disabled={appSaving}
-                    onFocus={e => { e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)'; }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                    onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && !appSaving && connectApp()}
-                  />
-                </div>
-                <div>
-                  <label style={S.modalLabel}>Password</label>
-                  <input
-                    style={S.modalInput}
-                    type="password"
-                    value={appCreds.password}
-                    onChange={e => setAppCreds(c => ({ ...c, password: e.target.value }))}
-                    placeholder="Your password"
-                    disabled={appSaving}
-                    onFocus={e => { e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)'; }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                    onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && !appSaving && connectApp()}
-                  />
-                </div>
+                {/* Credentials tab */}
+                {appAuthTab === 'credentials' && (
+                  <>
+                    <div style={S.modalSub}>
+                      Enter your {appModal.name} login credentials. Kova will verify them before saving.
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={S.modalLabel}>Username / Email</label>
+                      <input
+                        style={S.modalInput}
+                        value={appCreds.username}
+                        onChange={e => setAppCreds(c => ({ ...c, username: e.target.value }))}
+                        placeholder={`Your ${appModal.name} email or username`}
+                        autoFocus
+                        disabled={appSaving}
+                        onFocus={e => { e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)'; }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                        onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && !appSaving && connectApp()}
+                      />
+                    </div>
+                    <div>
+                      <label style={S.modalLabel}>Password</label>
+                      <input
+                        style={S.modalInput}
+                        type="password"
+                        value={appCreds.password}
+                        onChange={e => setAppCreds(c => ({ ...c, password: e.target.value }))}
+                        placeholder="Your password"
+                        disabled={appSaving}
+                        onFocus={e => { e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)'; }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                        onKeyDown={e => e.key === 'Enter' && appCreds.username && appCreds.password && !appSaving && connectApp()}
+                      />
+                    </div>
+                    <button
+                      style={S.modalConnectBtn(appSaving || !appCreds.username || !appCreds.password)}
+                      onClick={connectApp}
+                      disabled={appSaving || !appCreds.username || !appCreds.password}
+                      onMouseEnter={e => { if (!appSaving && appCreds.username && appCreds.password) e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+                    >
+                      {appSaving ? 'Verifying login...' : 'Connect'}
+                    </button>
+                  </>
+                )}
 
-                <button
-                  style={S.modalConnectBtn(appSaving || !appCreds.username || !appCreds.password)}
-                  onClick={connectApp}
-                  disabled={appSaving || !appCreds.username || !appCreds.password}
-                  onMouseEnter={e => { if (!appSaving && appCreds.username && appCreds.password) e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  {appSaving ? 'Verifying login...' : 'Connect'}
-                </button>
+                {/* Cookies tab */}
+                {appAuthTab === 'cookies' && (
+                  <>
+                    <div style={S.modalSub}>
+                      Export your browser cookies and paste them here. This bypasses login pages that block automated browsers.
+                    </div>
+                    <div style={{
+                      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: '10px', padding: '14px 16px', marginBottom: '16px',
+                      fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.7,
+                    }}>
+                      <div style={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>How to export cookies:</div>
+                      1. Log into {appModal.name} in Chrome<br/>
+                      2. Install the "Cookie-Editor" extension<br/>
+                      3. Click the extension icon on the {appModal.name} page<br/>
+                      4. Click "Export" &rarr; "Export as JSON"<br/>
+                      5. Paste the copied cookies below
+                    </div>
+                    <div>
+                      <label style={S.modalLabel}>Cookie Data (JSON)</label>
+                      <textarea
+                        style={{ ...S.textarea, minHeight: '120px', fontSize: '12px', fontFamily: "'Courier New', monospace" }}
+                        value={appCookies}
+                        onChange={e => setAppCookies(e.target.value)}
+                        placeholder='[{"name": "session", "value": "...", "domain": ".example.com", ...}]'
+                        disabled={appSaving}
+                        onFocus={e => { e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)'; }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                      />
+                    </div>
+                    <button
+                      style={S.modalConnectBtn(appSaving || !appCookies.trim())}
+                      onClick={connectAppCookies}
+                      disabled={appSaving || !appCookies.trim()}
+                      onMouseEnter={e => { if (!appSaving && appCookies.trim()) e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+                    >
+                      {appSaving ? 'Saving...' : 'Connect with Cookies'}
+                    </button>
+                  </>
+                )}
+
                 <button
                   style={S.modalCancelBtn}
                   onClick={() => { if (!appSaving) setAppModal(null); }}
@@ -1228,12 +1340,12 @@ export default function PortalPreferences() {
               </>
             )}
 
-            {connectedApps[appModal.id] && (
+            {connectedApps[appModal.id]?.status && (
               <>
                 <div style={S.modalSub}>
-                  Your credentials are securely stored and encrypted. Kova will use them when needed to complete tasks on your behalf.
+                  Your {connectedApps[appModal.id]?.auth_type === 'cookies' ? 'cookies' : 'credentials'} are securely stored and encrypted. Kova will use them when needed to complete tasks on your behalf.
                 </div>
-                {connectedApps[appModal.id] === 'unverified' ? (
+                {connectedApps[appModal.id]?.status === 'unverified' ? (
                   <div style={{
                     display: 'inline-flex', alignItems: 'center', gap: '8px',
                     background: 'rgba(251, 191, 36, 0.12)', color: '#fbbf24', borderRadius: '24px',
@@ -1245,6 +1357,9 @@ export default function PortalPreferences() {
                 ) : (
                   <div style={S.modalConnectedBadge}>
                     <span>&#10003;</span> Connected
+                    {connectedApps[appModal.id]?.auth_type === 'cookies' && (
+                      <span style={{ fontSize: '10px', opacity: 0.7 }}>(cookies)</span>
+                    )}
                   </div>
                 )}
                 <button
