@@ -1034,6 +1034,43 @@ export default function PortalPreferences() {
 
         {/* Connected Apps - Redesigned */}
         <div style={{ ...S.card, padding: '28px 28px 20px' }}>
+          {/* Chrome Extension Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(124,92,252,0.12), rgba(99,102,241,0.08))',
+            border: '1px solid rgba(124,92,252,0.2)',
+            borderRadius: '12px', padding: '14px 18px', marginBottom: '20px',
+            display: 'flex', alignItems: 'center', gap: '14px',
+          }}>
+            <div style={{
+              width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+              background: 'rgba(124,92,252,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#a78bfa"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#e0e0e0', marginBottom: '2px' }}>
+                One-click app connections with the Kova Chrome Extension
+              </div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>
+                Just log into any app normally, click the extension, and you're connected. No passwords to enter here.
+              </div>
+            </div>
+            <a
+              href="https://dashboard-production-0a18.up.railway.app/kova-extension-guide"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                background: 'rgba(124,92,252,0.2)', border: '1px solid rgba(124,92,252,0.3)',
+                borderRadius: '8px', color: '#a78bfa', padding: '7px 14px', fontSize: '11px',
+                fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,252,0.3)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,92,252,0.2)'; }}
+            >
+              Get Extension
+            </a>
+          </div>
+
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '4px' }}>
             <div>
               <h3 style={S.sectionTitle}>Connected Apps</h3>
